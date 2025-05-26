@@ -33,6 +33,8 @@ const initialState = {
       ],
       selectedOption: null,
       answered: false,
+      feedbackText: "",
+      feedbackClass: "",
     },
     {
       id: 2,
@@ -45,6 +47,8 @@ const initialState = {
       ],
       selectedOption: null,
       answered: false,
+      feedbackText: "",
+      feedbackClass: "",
     },
     {
       id: 3,
@@ -57,6 +61,8 @@ const initialState = {
       ],
       selectedOption: null,
       answered: false,
+      feedbackText: "",
+      feedbackClass: "",
     },
   ],
 };
@@ -79,13 +85,33 @@ io.on("connection", (socket) => {
     const previousState = JSON.parse(JSON.stringify(currentState));
 
     const question = currentState.questions.find((q) => q.id === questionId);
-    if (question && !question.answered) {
+    if (question) {
       const option = question.options.find((opt) => opt.id === optionId);
-      question.selectedOption = optionId;
-      question.answered = true;
+      if (option) {
+        // Get previous answer state to handle score changes
+        const previousOption = question.options.find(
+          (opt) => opt.id === question.selectedOption
+        );
 
-      if (option?.isCorrect) {
-        currentState.currentScore += 1;
+        // Update selected option
+        question.selectedOption = optionId;
+        question.answered = true;
+
+        // Update score based on the change
+        if (!previousOption && option.isCorrect) {
+          // First answer and it's correct
+          currentState.currentScore += 1;
+        } else if (previousOption?.isCorrect && !option.isCorrect) {
+          // Changed from correct to incorrect
+          currentState.currentScore -= 1;
+        } else if (!previousOption?.isCorrect && option.isCorrect) {
+          // Changed from incorrect to correct
+          currentState.currentScore += 1;
+        }
+
+        // Set feedback text and class based on the selected option
+        question.feedbackText = option.isCorrect ? "Correct!" : "Incorrect!";
+        question.feedbackClass = option.isCorrect ? "correct" : "incorrect";
       }
     }
 

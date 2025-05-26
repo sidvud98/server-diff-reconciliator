@@ -17,6 +17,8 @@ interface Question {
   options: Option[];
   selectedOption: number | null;
   answered: boolean;
+  feedbackText: string;
+  feedbackClass: string;
 }
 
 interface QuizState {
@@ -82,11 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 key: option.id,
                 className: "option",
                 onClick: (e) => {
-                  // Prevent default to handle the click ourselves
                   e.preventDefault();
-                  if (!currentQuestion.answered) {
-                    handleOptionSelect(currentQuestion.id, option.id);
-                  }
+                  handleOptionSelect(currentQuestion.id, option.id);
                 },
               },
               [
@@ -95,8 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   type: "radio",
                   name: `question-${currentQuestion.id}`,
                   checked: currentQuestion.selectedOption === option.id,
-                  readOnly: true, // Since we're handling click on the label
-                  disabled: currentQuestion.answered,
+                  readOnly: true,
                 }),
                 h("span", { key: "text" }, option.text),
               ]
@@ -104,23 +102,14 @@ document.addEventListener("DOMContentLoaded", () => {
           )
         ),
         currentQuestion.answered &&
+          currentQuestion.feedbackText &&
           h(
             "div",
             {
               key: "feedback",
-              className: `feedback ${
-                currentQuestion.options.find(
-                  (opt) => opt.id === currentQuestion.selectedOption
-                )?.isCorrect
-                  ? "correct"
-                  : "incorrect"
-              }`,
+              className: `feedback ${currentQuestion.feedbackClass}`,
             },
-            currentQuestion.options.find(
-              (opt) => opt.id === currentQuestion.selectedOption
-            )?.isCorrect
-              ? "Correct!"
-              : "Incorrect!"
+            currentQuestion.feedbackText
           ),
       ])
     );
@@ -147,7 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
             className: "nav-button",
             onClick: () => handleNavigation("next"),
             disabled:
-              quizState?.currentQuestionIndex === quizState?.questions.length - 1,
+              quizState?.currentQuestionIndex ===
+              quizState?.questions.length - 1,
           },
           "→"
         ),
