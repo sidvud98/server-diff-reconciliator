@@ -8,7 +8,6 @@ import type { Operation } from "fast-json-patch";
 interface Option {
   id: number;
   text: string;
-  isCorrect: boolean;
 }
 
 interface Question {

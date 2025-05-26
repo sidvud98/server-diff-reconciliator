@@ -76,8 +76,16 @@ io.on("connection", (socket) => {
   // Initialize client state
   clientStates.set(socket.id, JSON.parse(JSON.stringify(initialState)));
 
+  const initialStateWithoutIsCorrectKey = {
+    ...initialState,
+    questions: initialState.questions.map((q) => ({
+      ...q,
+      options: q.options.map(({ isCorrect, ...opt }) => opt),
+    })),
+  };
+
   // Send initial state to client
-  socket.emit("initialState", initialState);
+  socket.emit("initialState", initialStateWithoutIsCorrectKey);
 
   // Handle option selection
   socket.on("selectOption", ({ questionId, optionId }) => {
