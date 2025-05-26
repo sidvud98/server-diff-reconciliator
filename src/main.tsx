@@ -1,5 +1,5 @@
 import "./index.css";
-import { createElement as h } from "react";
+import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { io } from "socket.io-client";
 import { applyPatch } from "fast-json-patch";
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderScore() {
     if (!quizState) return;
     scoreRoot.render(
-      h(
+      createElement(
         "div",
         { className: "score" },
         `Score: ${quizState.currentScore}/${quizState.totalQuestions}`
@@ -71,13 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
 
     questionRoot.render(
-      h("div", { className: "question-container" }, [
-        h("h2", { key: "title" }, currentQuestion.text),
-        h(
+      createElement("div", { className: "question-container" }, [
+        createElement("h2", { key: "title" }, currentQuestion.text),
+        createElement(
           "div",
           { key: "options", className: "options" },
           currentQuestion.options.map((option) =>
-            h(
+            createElement(
               "label",
               {
                 key: option.id,
@@ -88,21 +88,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
               },
               [
-                h("input", {
+                createElement("input", {
                   key: "input",
                   type: "radio",
                   name: `question-${currentQuestion.id}`,
                   checked: currentQuestion.selectedOption === option.id,
                   readOnly: true,
                 }),
-                h("span", { key: "text" }, option.text),
+                createElement("span", { key: "text" }, option.text),
               ]
             )
           )
         ),
         currentQuestion.answered &&
           currentQuestion.feedbackText &&
-          h(
+          createElement(
             "div",
             {
               key: "feedback",
@@ -117,8 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderNavigation() {
     if (!quizState) return;
     navigationRoot.render(
-      h("div", { className: "navigation" }, [
-        h(
+      createElement("div", { className: "navigation" }, [
+        createElement(
           "button",
           {
             key: "prev",
@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           "←"
         ),
-        h(
+        createElement(
           "button",
           {
             key: "next",
@@ -179,5 +179,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Show initial loading state
-  questionRoot.render(h("div", null, "Loading..."));
+  questionRoot.render(createElement("div", null, "Loading..."));
 });
