@@ -133,5 +133,5 @@ export const DIFF_SLUGS = {
   CURRENTSCORE: "currentScore",
 };
 
-export type IMCQData = typeof MCQ_DATA;
+export type IMCQData = typeof INITIAL_DATA;
 export type IDirectionType = (typeof DIRECTIONS)[keyof typeof DIRECTIONS];
