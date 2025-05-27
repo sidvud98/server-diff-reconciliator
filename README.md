@@ -4,7 +4,7 @@
 2. Navigate into the folder
 
 ```bash
-cd regie-server-diff-reconciliator
+cd server-diff-reconciliator
 ```
 
 3. Switch to Node v22
