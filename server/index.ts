@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
         }
 
         // Set feedback text and class based on the selected option
-        question.feedbackText = option.isCorrect ? "Correct!" : "Incorrect!";
+        question.feedbackText = option.isCorrect ? "Correct" : "Incorrect";
         question.feedbackClass = option.isCorrect ? "correct" : "incorrect";
       }
     }

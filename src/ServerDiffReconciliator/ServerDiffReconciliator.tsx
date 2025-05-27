@@ -35,15 +35,18 @@ const renderNavigation = (
   navigationRoot: Root
 ) => {
   if (!quizState) return;
+  const disabledPrevFlag = quizState?.currentQuestionIndex === 0;
+  const disabledNextFlag =
+    quizState?.currentQuestionIndex === quizState?.questions.length - 1;
   navigationRoot.render(
     createElement("div", { className: "navigation" }, [
       createElement(
         "button",
         {
           key: "prev",
-          className: "nav-button",
+          className: `nav-button ${disabledPrevFlag ? "disabled" : ""}`,
           onClick: () => handleNavigation("prev"),
-          disabled: quizState?.currentQuestionIndex === 0,
+          disabled: disabledPrevFlag,
         },
         "←"
       ),
@@ -51,10 +54,9 @@ const renderNavigation = (
         "button",
         {
           key: "next",
-          className: "nav-button",
+          className: `nav-button ${disabledNextFlag ? "disabled" : ""}`,
           onClick: () => handleNavigation("next"),
-          disabled:
-            quizState?.currentQuestionIndex === quizState?.questions.length - 1,
+          disabled: disabledNextFlag,
         },
         "→"
       ),
