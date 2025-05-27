@@ -1,4 +1,4 @@
-import "./index.css";
+import "./main.css";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { io } from "socket.io-client";
