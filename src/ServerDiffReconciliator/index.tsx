@@ -10,8 +10,9 @@ import { AppWrapper } from "./ServerDiffReconciliator.style";
 import {
   SERVER_URL,
   SOCKET_EVENT_NAMES,
-  type IDirectionType,
   DIFF_SLUGS,
+  DIRECTIONS,
+  type IDirectionType,
 } from "@constants";
 
 // Variable & socket initialization
@@ -55,9 +56,9 @@ const renderNavigation = (
       createElement(
         "button",
         {
-          key: "prev",
+          key: DIRECTIONS.PREVIOUS,
           className: `nav-button ${disabledPrevFlag ? "disabled" : ""}`,
-          onClick: () => handleNavigation("prev"),
+          onClick: () => handleNavigation(DIRECTIONS.PREVIOUS),
           disabled: disabledPrevFlag,
         },
         "←"
@@ -65,9 +66,9 @@ const renderNavigation = (
       createElement(
         "button",
         {
-          key: "next",
+          key: DIRECTIONS.NEXT,
           className: `nav-button ${disabledNextFlag ? "disabled" : ""}`,
-          onClick: () => handleNavigation("next"),
+          onClick: () => handleNavigation(DIRECTIONS.NEXT),
           disabled: disabledNextFlag,
         },
         "→"
