@@ -7,21 +7,23 @@ export const AppWrapper = styled.div`
     padding: 16px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     flex-direction: column;
     gap: 16px;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 
     .score {
       font-size: 30px;
+      text-align: center;
     }
 
     h2 {
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      margin: 0;
     }
 
     .question-container {
@@ -30,7 +32,7 @@ export const AppWrapper = styled.div`
       align-items: start;
       flex-direction: column;
       min-height: 230px;
-      width: 550px;
+      width: 600px;
       gap: 12px;
 
       .options {
@@ -57,6 +59,7 @@ export const AppWrapper = styled.div`
         min-width: 106px;
         text-align: center;
         user-select: none;
+        margin: auto;
 
         &.correct {
           background-color: #6cdb6c;
@@ -74,9 +77,12 @@ export const AppWrapper = styled.div`
       gap: 16px;
       user-select: none;
 
-      .nav-button.disabled {
-        cursor: not-allowed;
-        border: none;
+      .nav-button {
+        width: 50%;
+        &.disabled {
+          cursor: not-allowed;
+          border: none;
+        }
       }
     }
   }

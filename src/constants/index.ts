@@ -5,12 +5,28 @@ export const MCQ_DATA = {
   questions: [
     {
       id: 1,
-      text: "What color is a banana?",
+      text: "Which country recently overtook Japan to become the world's 4th largest economy?",
       options: [
-        { id: 1, text: "Blue", isCorrect: false },
-        { id: 2, text: "Yellow", isCorrect: true },
-        { id: 3, text: "Red", isCorrect: false },
-        { id: 4, text: "Green", isCorrect: false },
+        {
+          id: 1,
+          text: "The United Kingdom overtook Japan to become the 4th largest economy.",
+          isCorrect: false,
+        },
+        {
+          id: 2,
+          text: "India overtook Japan to become the 4th largest economy.",
+          isCorrect: true,
+        },
+        {
+          id: 3,
+          text: "Germany overtook Japan to become the 4th largest economy.",
+          isCorrect: false,
+        },
+        {
+          id: 4,
+          text: "Brazil overtook Japan to become the 4th largest economy.",
+          isCorrect: false,
+        },
       ],
       selectedOption: null,
       answered: false,
@@ -19,12 +35,28 @@ export const MCQ_DATA = {
     },
     {
       id: 2,
-      text: "Which animal is known for its black and white stripes?",
+      text: "Which company became the world’s first to hit a $3 trillion market value in stock markets?",
       options: [
-        { id: 1, text: "Lion", isCorrect: false },
-        { id: 2, text: "Zebra", isCorrect: true },
-        { id: 3, text: "Elephant", isCorrect: false },
-        { id: 4, text: "Monkey", isCorrect: false },
+        {
+          id: 1,
+          text: "Amazon was the first company to hit a $3 trillion valuation.",
+          isCorrect: false,
+        },
+        {
+          id: 2,
+          text: "Microsoft was the first company to reach a $3 trillion valuation.",
+          isCorrect: false,
+        },
+        {
+          id: 3,
+          text: "Apple was the first company to hit a $3 trillion valuation.",
+          isCorrect: true,
+        },
+        {
+          id: 4,
+          text: "Google was the first company to hit a $3 trillion valuation.",
+          isCorrect: false,
+        },
       ],
       selectedOption: null,
       answered: false,
@@ -33,12 +65,28 @@ export const MCQ_DATA = {
     },
     {
       id: 3,
-      text: "What do bees make that we can eat?",
+      text: "Which country’s football team won the 2022 FIFA World Cup?",
       options: [
-        { id: 1, text: "Milk", isCorrect: false },
-        { id: 2, text: "Honey", isCorrect: true },
-        { id: 3, text: "Bread", isCorrect: false },
-        { id: 4, text: "Cheese", isCorrect: false },
+        {
+          id: 1,
+          text: "The French football team won the 2022 FIFA World Cup.",
+          isCorrect: false,
+        },
+        {
+          id: 2,
+          text: "The Brazilian football team won the 2022 FIFA World Cup.",
+          isCorrect: false,
+        },
+        {
+          id: 3,
+          text: "The German football team won the 2022 FIFA World Cup.",
+          isCorrect: false,
+        },
+        {
+          id: 4,
+          text: "The Argentinian football team won the 2022 FIFA World Cup.",
+          isCorrect: true,
+        },
       ],
       selectedOption: null,
       answered: false,

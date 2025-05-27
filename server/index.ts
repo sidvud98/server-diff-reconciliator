@@ -10,8 +10,13 @@ import {
   SOCKET_EVENT_NAMES,
   SERVER_PORT,
   DIRECTIONS,
+  type IDirectionType,
 } from "../src/constants";
 import { sanitizeStateForClient } from "../src/utils/helper";
+import type {
+  IQuestion,
+  IOption,
+} from "../src/ServerDiffReconciliator/ServerDiffReconciliator.interface";
 
 const app = express();
 const httpServer = createServer(app);
@@ -39,49 +44,56 @@ io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
   );
 
   // Handle option selection
-  socket.on(SOCKET_EVENT_NAMES.SELECT_OPTION, ({ questionId, optionId }) => {
-    const currentState = clientStates.get(socket.id);
-    const previousState = JSON.parse(JSON.stringify(currentState));
+  socket.on(
+    SOCKET_EVENT_NAMES.SELECT_OPTION,
+    ({ questionId, optionId }: { questionId: number; optionId: number }) => {
+      const currentState = clientStates.get(socket.id);
+      const previousState = JSON.parse(JSON.stringify(currentState));
 
-    const question = currentState.questions.find((q) => q.id === questionId);
-    if (question) {
-      const option = question.options.find((opt) => opt.id === optionId);
-      if (option) {
-        // Get previous answer state to handle score changes
-        const previousOption = question.options.find(
-          (opt) => opt.id === question.selectedOption
+      const question = currentState.questions.find(
+        (q: IQuestion) => q.id === questionId
+      );
+      if (question) {
+        const option = question.options.find(
+          (opt: IOption) => opt.id === optionId
         );
+        if (option) {
+          // Get previous answer state to handle score changes
+          const previousOption = question.options.find(
+            (opt: IOption) => opt.id === question.selectedOption
+          );
 
-        // Update selected option
-        question.selectedOption = optionId;
-        question.answered = true;
+          // Update selected option
+          question.selectedOption = optionId;
+          question.answered = true;
 
-        // Update score based on the change
-        if (!previousOption && option.isCorrect) {
-          currentState.currentScore += 1;
-        } else if (previousOption?.isCorrect && !option.isCorrect) {
-          currentState.currentScore -= 1;
-        } else if (!previousOption?.isCorrect && option.isCorrect) {
-          currentState.currentScore += 1;
+          // Update score based on the change
+          if (!previousOption && option.isCorrect) {
+            currentState.currentScore += 1;
+          } else if (previousOption?.isCorrect && !option.isCorrect) {
+            currentState.currentScore -= 1;
+          } else if (!previousOption?.isCorrect && option.isCorrect) {
+            currentState.currentScore += 1;
+          }
+
+          // Set feedback text and class based on the selected option
+          question.feedbackText = option.isCorrect
+            ? OPTIONS.CORRECT
+            : OPTIONS.INCORRECT;
+          question.feedbackClass = option.isCorrect
+            ? OPTIONS_CLASSES.CORRECT
+            : OPTIONS_CLASSES.INCORRECT;
         }
-
-        // Set feedback text and class based on the selected option
-        question.feedbackText = option.isCorrect
-          ? OPTIONS.CORRECT
-          : OPTIONS.INCORRECT;
-        question.feedbackClass = option.isCorrect
-          ? OPTIONS_CLASSES.CORRECT
-          : OPTIONS_CLASSES.INCORRECT;
       }
-    }
 
-    // Generate diff
-    const patches = jsonpatch.compare(previousState, currentState);
-    socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
-  });
+      // Generate diff
+      const patches = jsonpatch.compare(previousState, currentState);
+      socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
+    }
+  );
 
   // Handle question navigation
-  socket.on(SOCKET_EVENT_NAMES.NAVIGATE, (direction) => {
+  socket.on(SOCKET_EVENT_NAMES.NAVIGATE, (direction: IDirectionType) => {
     const currentState = clientStates.get(socket.id);
     const previousState = JSON.parse(JSON.stringify(currentState));
 
