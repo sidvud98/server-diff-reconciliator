@@ -56,6 +56,7 @@ export const AppWrapper = styled.div`
         padding: 2px 8px;
         min-width: 106px;
         text-align: center;
+        user-select: none;
 
         &.correct {
           background-color: #6cdb6c;
@@ -71,6 +72,7 @@ export const AppWrapper = styled.div`
       justify-content: center;
       align-items: center;
       gap: 16px;
+      user-select: none;
 
       .nav-button.disabled {
         cursor: not-allowed;

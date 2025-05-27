@@ -7,16 +7,28 @@ import { applyPatch } from "fast-json-patch";
 import type { Operation as IOperation } from "fast-json-patch";
 import type { IOption, IQuizState } from "./ServerDiffReconciliator.interface";
 import { AppWrapper } from "./ServerDiffReconciliator.style";
+import {
+  SERVER_URL,
+  SOCKET_EVENT_NAMES,
+  type IDirectionType,
+  DIFF_SLUGS,
+} from "../constants";
 
+// Variable & socket initialization
 let quizState: IQuizState | null = null;
-const socket = io("http://localhost:3001");
+const socket = io(SERVER_URL);
+
+//        ▄▖     ▌    ▘     ▄▖      ▗ ▘       ▄▖▗     ▗
+// ▀▘▀▘▀▘ ▙▘█▌▛▌▛▌█▌▛▘▌▛▌▛▌ ▙▖▌▌▛▌▛▘▜▘▌▛▌▛▌▛▘ ▚ ▜▘▀▌▛▘▜▘ ▀▘▀▘▀▘
+// ▀▘▀▘▀▘ ▌▌▙▖▌▌▙▌▙▖▌ ▌▌▌▙▌ ▌ ▙▌▌▌▙▖▐▖▌▙▌▌▌▄▌ ▄▌▐▖█▌▌ ▐▖ ▀▘▀▘▀▘
+//                       ▄▌
 
 const handleOptionSelect = (questionId: number, optionId: number) => {
-  socket.emit("selectOption", { questionId, optionId });
+  socket.emit(SOCKET_EVENT_NAMES.SELECT_OPTION, { questionId, optionId });
 };
 
-const handleNavigation = (direction: "prev" | "next") => {
-  socket.emit("navigate", direction);
+const handleNavigation = (direction: IDirectionType) => {
+  socket.emit(SOCKET_EVENT_NAMES.NAVIGATE, direction);
 };
 
 const renderScore = (quizState: IQuizState | null, scoreRoot: Root) => {
@@ -113,6 +125,11 @@ const renderQuestion = (quizState: IQuizState | null, questionRoot: Root) => {
   );
 };
 
+//        ▄▖     ▌    ▘     ▄▖      ▗ ▘       ▄▖   ▌
+// ▀▘▀▘▀▘ ▙▘█▌▛▌▛▌█▌▛▘▌▛▌▛▌ ▙▖▌▌▛▌▛▘▜▘▌▛▌▛▌▛▘ ▙▖▛▌▛▌ ▀▘▀▘▀▘
+// ▀▘▀▘▀▘ ▌▌▙▖▌▌▙▌▙▖▌ ▌▌▌▙▌ ▌ ▙▌▌▌▙▖▐▖▌▙▌▌▌▄▌ ▙▖▌▌▙▌ ▀▘▀▘▀▘
+//                       ▄▌
+
 const ServerDiffReconciliator: React.FC = () => {
   useEffect(() => {
     // Wait for DOM to load on browser
@@ -144,7 +161,7 @@ const ServerDiffReconciliator: React.FC = () => {
     const navigationNode = createRoot(navigationTogglerElement);
 
     // Socket event handlers
-    socket.on("initialState", (initialState: IQuizState) => {
+    socket.on(SOCKET_EVENT_NAMES.INITIAL_STATE, (initialState: IQuizState) => {
       console.log("Received initial state:", initialState); // Debug log
       quizState = initialState;
       renderScore(quizState, scoreNode);
@@ -152,7 +169,7 @@ const ServerDiffReconciliator: React.FC = () => {
       renderNavigation(quizState, navigationNode);
     });
 
-    socket.on("stateUpdate", (patches: IOperation[]) => {
+    socket.on(SOCKET_EVENT_NAMES.STATE_UPDATE, (patches: IOperation[]) => {
       if (!quizState) return;
       console.log("Received patches:", patches); // Debug log
       const newState = JSON.parse(JSON.stringify(quizState));
@@ -162,10 +179,14 @@ const ServerDiffReconciliator: React.FC = () => {
       // Check what changed and only update affected components
       patches.forEach((patch) => {
         const path = patch.path.split("/");
-        if (path.includes("currentScore")) renderScore(quizState, scoreNode);
-        if (path.includes("questions") || path.includes("currentQuestionIndex"))
+        if (path.includes(DIFF_SLUGS.CURRENT_SCORE))
+          renderScore(quizState, scoreNode);
+        if (
+          path.includes(DIFF_SLUGS.QUESTIONS) ||
+          path.includes(DIFF_SLUGS.CURRENT_QUESTION_INDEX)
+        )
           renderQuestion(quizState, questionNode);
-        if (path.includes("currentQuestionIndex"))
+        if (path.includes(DIFF_SLUGS.CURRENT_QUESTION_INDEX))
           renderNavigation(quizState, navigationNode);
       });
     });

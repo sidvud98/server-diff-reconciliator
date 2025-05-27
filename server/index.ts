@@ -2,95 +2,44 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import jsonpatch from "fast-json-patch";
+import {
+  MCQ_DATA,
+  CLIENT_URL,
+  OPTIONS,
+  OPTIONS_CLASSES,
+  SOCKET_EVENT_NAMES,
+  SERVER_PORT,
+  DIRECTIONS,
+} from "../src/constants";
+import { sanitizeStateForClient } from "../src/utils/helper";
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: CLIENT_URL,
     methods: ["GET", "POST"],
   },
 });
 
 // Initial state
-const initialState = {
-  currentScore: 0,
-  totalQuestions: 3,
-  currentQuestionIndex: 0,
-  questions: [
-    {
-      id: 1,
-      text: "What color is a banana?",
-      options: [
-        { id: 1, text: "Blue", isCorrect: false },
-        { id: 2, text: "Yellow", isCorrect: true },
-        { id: 3, text: "Red", isCorrect: false },
-        { id: 4, text: "Green", isCorrect: false },
-      ],
-      selectedOption: null,
-      answered: false,
-      feedbackText: "",
-      feedbackClass: "",
-    },
-    {
-      id: 2,
-      text: "Which animal is known for its black and white stripes?",
-      options: [
-        { id: 1, text: "Lion", isCorrect: false },
-        { id: 2, text: "Zebra", isCorrect: true },
-        { id: 3, text: "Elephant", isCorrect: false },
-        { id: 4, text: "Monkey", isCorrect: false },
-      ],
-      selectedOption: null,
-      answered: false,
-      feedbackText: "",
-      feedbackClass: "",
-    },
-    {
-      id: 3,
-      text: "What do bees make that we can eat?",
-      options: [
-        { id: 1, text: "Milk", isCorrect: false },
-        { id: 2, text: "Honey", isCorrect: true },
-        { id: 3, text: "Bread", isCorrect: false },
-        { id: 4, text: "Cheese", isCorrect: false },
-      ],
-      selectedOption: null,
-      answered: false,
-      feedbackText: "",
-      feedbackClass: "",
-    },
-  ],
-};
+const initialState = MCQ_DATA;
 
 // Keep track of current state for each client
 const clientStates = new Map();
 
-// Helper function to remove isCorrect from options before sending to client
-const sanitizeStateForClient = (state) => {
-  return {
-    ...state,
-    questions: state.questions.map((q) => ({
-      ...q,
-      options: q.options.map((opt) => ({
-        id: opt.id,
-        text: opt.text,
-      })),
-    })),
-  };
-};
-
-io.on("connection", (socket) => {
-  console.log("Client connected");
-
+io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
   // Initialize client state
   clientStates.set(socket.id, JSON.parse(JSON.stringify(initialState)));
 
   // Send initial state to client
-  socket.emit("initialState", sanitizeStateForClient(initialState));
+  socket.emit(
+    SOCKET_EVENT_NAMES.INITIAL_STATE,
+    sanitizeStateForClient(initialState)
+  );
 
   // Handle option selection
-  socket.on("selectOption", ({ questionId, optionId }) => {
+  socket.on(SOCKET_EVENT_NAMES.SELECT_OPTION, ({ questionId, optionId }) => {
     const currentState = clientStates.get(socket.id);
     const previousState = JSON.parse(JSON.stringify(currentState));
 
@@ -109,50 +58,55 @@ io.on("connection", (socket) => {
 
         // Update score based on the change
         if (!previousOption && option.isCorrect) {
-          // First answer and it's correct
           currentState.currentScore += 1;
         } else if (previousOption?.isCorrect && !option.isCorrect) {
-          // Changed from correct to incorrect
           currentState.currentScore -= 1;
         } else if (!previousOption?.isCorrect && option.isCorrect) {
-          // Changed from incorrect to correct
           currentState.currentScore += 1;
         }
 
         // Set feedback text and class based on the selected option
-        question.feedbackText = option.isCorrect ? "Correct" : "Incorrect";
-        question.feedbackClass = option.isCorrect ? "correct" : "incorrect";
+        question.feedbackText = option.isCorrect
+          ? OPTIONS.CORRECT
+          : OPTIONS.INCORRECT;
+        question.feedbackClass = option.isCorrect
+          ? OPTIONS_CLASSES.CORRECT
+          : OPTIONS_CLASSES.INCORRECT;
       }
     }
 
     // Generate diff
     const patches = jsonpatch.compare(previousState, currentState);
-    socket.emit("stateUpdate", patches);
+    socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
   });
 
   // Handle question navigation
-  socket.on("navigate", (direction) => {
+  socket.on(SOCKET_EVENT_NAMES.NAVIGATE, (direction) => {
     const currentState = clientStates.get(socket.id);
     const previousState = JSON.parse(JSON.stringify(currentState));
 
-    if (direction === "next" && currentState.currentQuestionIndex < 2) {
+    if (
+      direction === DIRECTIONS.NEXT &&
+      currentState.currentQuestionIndex < 2
+    ) {
       currentState.currentQuestionIndex += 1;
-    } else if (direction === "prev" && currentState.currentQuestionIndex > 0) {
+    } else if (
+      direction === DIRECTIONS.PREVIOUS &&
+      currentState.currentQuestionIndex > 0
+    ) {
       currentState.currentQuestionIndex -= 1;
     }
 
     // Generate diff
     const patches = jsonpatch.compare(previousState, currentState);
-    socket.emit("stateUpdate", patches);
+    socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
   });
 
-  socket.on("disconnect", () => {
+  socket.on(SOCKET_EVENT_NAMES.DISCONNECT, () => {
     clientStates.delete(socket.id);
-    console.log("Client disconnected");
   });
 });
 
-const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+httpServer.listen(SERVER_PORT, () => {
+  console.log(`Server running on port ${SERVER_PORT}`);
 });
