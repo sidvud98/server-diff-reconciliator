@@ -5,7 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { io } from "socket.io-client";
 import { applyPatch } from "fast-json-patch";
 import type { Operation as IOperation } from "fast-json-patch";
-import type { IQuizState } from "./ServerDiffReconciliator.interface";
+import type { IOption, IQuizState } from "./ServerDiffReconciliator.interface";
 import { AppWrapper } from "./ServerDiffReconciliator.style";
 
 let quizState: IQuizState | null = null;
@@ -68,35 +68,36 @@ const renderQuestion = (quizState: IQuizState | null, questionRoot: Root) => {
   if (!quizState) return;
   const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
 
+  const createOptionElement = (option: IOption) =>
+    createElement(
+      "label",
+      {
+        key: option.id,
+        className: "option",
+        onClick: (e) => {
+          e.preventDefault();
+          handleOptionSelect(currentQuestion.id, option.id);
+        },
+      },
+      [
+        createElement("input", {
+          key: "input",
+          type: "radio",
+          name: `question-${currentQuestion.id}`,
+          checked: currentQuestion.selectedOption === option.id,
+          readOnly: true,
+        }),
+        createElement("span", { key: "text" }, option.text),
+      ]
+    );
+
   questionRoot.render(
     createElement("div", { className: "question-container" }, [
       createElement("h2", { key: "title" }, currentQuestion.text),
       createElement(
         "div",
         { key: "options", className: "options" },
-        currentQuestion.options.map((option) =>
-          createElement(
-            "label",
-            {
-              key: option.id,
-              className: "option",
-              onClick: (e) => {
-                e.preventDefault();
-                handleOptionSelect(currentQuestion.id, option.id);
-              },
-            },
-            [
-              createElement("input", {
-                key: "input",
-                type: "radio",
-                name: `question-${currentQuestion.id}`,
-                checked: currentQuestion.selectedOption === option.id,
-                readOnly: true,
-              }),
-              createElement("span", { key: "text" }, option.text),
-            ]
-          )
-        )
+        currentQuestion.options.map(createOptionElement)
       ),
       currentQuestion.answered &&
         currentQuestion.feedbackText &&

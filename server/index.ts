@@ -20,16 +20,12 @@ const initialState = {
   questions: [
     {
       id: 1,
-      text: "What is React?",
+      text: "What color is a banana?",
       options: [
-        {
-          id: 1,
-          text: "A JavaScript library for building user interfaces",
-          isCorrect: true,
-        },
-        { id: 2, text: "A programming language", isCorrect: false },
-        { id: 3, text: "A database system", isCorrect: false },
-        { id: 4, text: "An operating system", isCorrect: false },
+        { id: 1, text: "Blue", isCorrect: false },
+        { id: 2, text: "Yellow", isCorrect: true },
+        { id: 3, text: "Red", isCorrect: false },
+        { id: 4, text: "Green", isCorrect: false },
       ],
       selectedOption: null,
       answered: false,
@@ -38,12 +34,12 @@ const initialState = {
     },
     {
       id: 2,
-      text: "What is TypeScript?",
+      text: "Which animal is known for its black and white stripes?",
       options: [
-        { id: 1, text: "A CSS framework", isCorrect: false },
-        { id: 2, text: "A superset of JavaScript", isCorrect: true },
-        { id: 3, text: "A database", isCorrect: false },
-        { id: 4, text: "A web browser", isCorrect: false },
+        { id: 1, text: "Lion", isCorrect: false },
+        { id: 2, text: "Zebra", isCorrect: true },
+        { id: 3, text: "Elephant", isCorrect: false },
+        { id: 4, text: "Monkey", isCorrect: false },
       ],
       selectedOption: null,
       answered: false,
@@ -52,12 +48,12 @@ const initialState = {
     },
     {
       id: 3,
-      text: "What is Node.js?",
+      text: "What do bees make that we can eat?",
       options: [
-        { id: 1, text: "A browser", isCorrect: false },
-        { id: 2, text: "A frontend framework", isCorrect: false },
-        { id: 3, text: "A JavaScript runtime environment", isCorrect: true },
-        { id: 4, text: "A programming language", isCorrect: false },
+        { id: 1, text: "Milk", isCorrect: false },
+        { id: 2, text: "Honey", isCorrect: true },
+        { id: 3, text: "Bread", isCorrect: false },
+        { id: 4, text: "Cheese", isCorrect: false },
       ],
       selectedOption: null,
       answered: false,
