@@ -1,31 +1,10 @@
-import "./main.css";
+import "./index.css";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { io } from "socket.io-client";
 import { applyPatch } from "fast-json-patch";
-import type { Operation } from "fast-json-patch";
-
-interface Option {
-  id: number;
-  text: string;
-}
-
-interface Question {
-  id: number;
-  text: string;
-  options: Option[];
-  selectedOption: number | null;
-  answered: boolean;
-  feedbackText: string;
-  feedbackClass: string;
-}
-
-interface QuizState {
-  currentScore: number;
-  totalQuestions: number;
-  currentQuestionIndex: number;
-  questions: Question[];
-}
+import type { Operation as IOperation } from "fast-json-patch";
+import type { IQuizState } from "./ServerDiffReconciliator.interface";
 
 // Wait for DOM to be ready
 document.addEventListener("DOMContentLoaded", () => {
@@ -52,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionRoot = createRoot(questionElement);
   const navigationRoot = createRoot(navigationElement);
 
-  let quizState: QuizState | null = null;
+  let quizState: IQuizState | null = null;
   const socket = io("http://localhost:3001");
 
   function renderScore() {
@@ -153,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Socket event handlers
-  socket.on("initialState", (initialState: QuizState) => {
+  socket.on("initialState", (initialState: IQuizState) => {
     console.log("Received initial state:", initialState); // Debug log
     quizState = initialState;
     renderScore();
@@ -161,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderNavigation();
   });
 
-  socket.on("stateUpdate", (patches: Operation[]) => {
+  socket.on("stateUpdate", (patches: IOperation[]) => {
     if (!quizState) return;
     console.log("Received patches:", patches); // Debug log
     const newState = JSON.parse(JSON.stringify(quizState));
