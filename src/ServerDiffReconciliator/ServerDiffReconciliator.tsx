@@ -1,10 +1,12 @@
-import "./index.css";
+import React, { useEffect } from "react";
+import "../index.css";
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { io } from "socket.io-client";
 import { applyPatch } from "fast-json-patch";
 import type { Operation as IOperation } from "fast-json-patch";
 import type { IQuizState } from "./ServerDiffReconciliator.interface";
+import { AppWrapper } from "./ServerDiffReconciliator.style";
 
 let quizState: IQuizState | null = null;
 const socket = io("http://localhost:3001");
@@ -108,62 +110,69 @@ const renderQuestion = (quizState: IQuizState | null, questionRoot: Root) => {
   );
 };
 
-// Wait for DOM to load on browser
-document.addEventListener("DOMContentLoaded", () => {
-  // If root is absent stop and return
-  const root = document.getElementById("root");
-  if (!root) {
-    console.log("root not found!");
-    return;
-  }
+const ServerDiffReconciliator: React.FC = () => {
+  useEffect(() => {
+    // Wait for DOM to load on browser
+    const root = document.getElementById("server-diff-reconciliator-root");
+    // If root is absent stop and return
+    if (!root) {
+      console.log("root not found!");
+      return;
+    }
 
-  // Create wrapper container
-  const containerWrapper = document.createElement("div");
-  containerWrapper.className = "quiz-container-wrapper";
-  root.appendChild(containerWrapper);
+    // Create wrapper container
+    const containerWrapper = document.createElement("div");
+    containerWrapper.className = "quiz-container-wrapper";
+    root.appendChild(containerWrapper);
 
-  // Create section elements
-  const scoreElement = document.createElement("div");
-  const questionElement = document.createElement("div");
-  const navigationTogglerElement = document.createElement("div");
+    // Create section elements
+    const scoreElement = document.createElement("div");
+    const questionElement = document.createElement("div");
+    const navigationTogglerElement = document.createElement("div");
 
-  // Add sections to containerWrapper
-  containerWrapper.appendChild(scoreElement);
-  containerWrapper.appendChild(questionElement);
-  containerWrapper.appendChild(navigationTogglerElement);
+    // Add sections to containerWrapper
+    containerWrapper.appendChild(scoreElement);
+    containerWrapper.appendChild(questionElement);
+    containerWrapper.appendChild(navigationTogglerElement);
 
-  // Create roots for different sections
-  const scoreNode = createRoot(scoreElement);
-  const questionNode = createRoot(questionElement);
-  const navigationNode = createRoot(navigationTogglerElement);
+    // Create roots for different sections
+    const scoreNode = createRoot(scoreElement);
+    const questionNode = createRoot(questionElement);
+    const navigationNode = createRoot(navigationTogglerElement);
 
-  // Socket event handlers
-  socket.on("initialState", (initialState: IQuizState) => {
-    console.log("Received initial state:", initialState); // Debug log
-    quizState = initialState;
-    renderScore(quizState, scoreNode);
-    renderQuestion(quizState, questionNode);
-    renderNavigation(quizState, navigationNode);
-  });
-
-  socket.on("stateUpdate", (patches: IOperation[]) => {
-    if (!quizState) return;
-    console.log("Received patches:", patches); // Debug log
-    const newState = JSON.parse(JSON.stringify(quizState));
-    applyPatch(newState, patches);
-    quizState = newState;
-
-    // Check what changed and only update affected components
-    patches.forEach((patch) => {
-      const path = patch.path.split("/");
-      if (path.includes("currentScore")) renderScore(quizState, scoreNode);
-      if (path.includes("questions") || path.includes("currentQuestionIndex"))
-        renderQuestion(quizState, questionNode);
-      if (path.includes("currentQuestionIndex"))
-        renderNavigation(quizState, navigationNode);
+    // Socket event handlers
+    socket.on("initialState", (initialState: IQuizState) => {
+      console.log("Received initial state:", initialState); // Debug log
+      quizState = initialState;
+      renderScore(quizState, scoreNode);
+      renderQuestion(quizState, questionNode);
+      renderNavigation(quizState, navigationNode);
     });
-  });
 
-  // Show initial loading state
-  questionNode.render(createElement("div", null, "Socket Connecting..."));
-});
+    socket.on("stateUpdate", (patches: IOperation[]) => {
+      if (!quizState) return;
+      console.log("Received patches:", patches); // Debug log
+      const newState = JSON.parse(JSON.stringify(quizState));
+      applyPatch(newState, patches);
+      quizState = newState;
+
+      // Check what changed and only update affected components
+      patches.forEach((patch) => {
+        const path = patch.path.split("/");
+        if (path.includes("currentScore")) renderScore(quizState, scoreNode);
+        if (path.includes("questions") || path.includes("currentQuestionIndex"))
+          renderQuestion(quizState, questionNode);
+        if (path.includes("currentQuestionIndex"))
+          renderNavigation(quizState, navigationNode);
+      });
+    });
+  }, []);
+
+  return (
+    <AppWrapper>
+      <div id="server-diff-reconciliator-root" />
+    </AppWrapper>
+  );
+};
+
+export default ServerDiffReconciliator;
