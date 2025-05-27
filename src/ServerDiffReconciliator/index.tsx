@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "../index.css";
+import "@/index.css";
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { io } from "socket.io-client";
@@ -12,7 +12,7 @@ import {
   SOCKET_EVENT_NAMES,
   type IDirectionType,
   DIFF_SLUGS,
-} from "../constants";
+} from "@constants";
 
 // Variable & socket initialization
 let quizState: IQuizState | null = null;

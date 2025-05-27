@@ -1,4 +1,4 @@
-import type { IMCQData } from "../constants";
+import type { IMCQData } from "@constants";
 
 // Helper function to remove isCorrect from options before sending to client
 export const sanitizeStateForClient = (state: IMCQData) => {
