@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import jsonpatch from "fast-json-patch";
 import {
-  MCQ_DATA,
+  INITIAL_DATA,
   CLIENT_URL,
   OPTIONS,
   OPTIONS_CLASSES,
@@ -28,7 +28,7 @@ const io = new Server(httpServer, {
 });
 
 // Initial state
-const initialState = MCQ_DATA;
+const initialState = INITIAL_DATA;
 
 // Keep track of current state for each client
 const clientStates = new Map();
