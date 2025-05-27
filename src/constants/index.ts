@@ -35,7 +35,7 @@ export const MCQ_DATA = {
     },
     {
       id: 2,
-      text: "Which company became the world’s first to hit a $3 trillion market value in stock markets?",
+      text: "Which company became the world's first to hit a $3 trillion market value in stock markets?",
       options: [
         {
           id: 1,
@@ -65,7 +65,7 @@ export const MCQ_DATA = {
     },
     {
       id: 3,
-      text: "Which country’s football team won the 2022 FIFA World Cup?",
+      text: "Which country's football team won the 2022 FIFA World Cup?",
       options: [
         {
           id: 1,
