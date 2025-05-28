@@ -10,6 +10,7 @@ import {
   SOCKET_EVENT_NAMES,
   SERVER_PORT,
   DIRECTIONS,
+  DIFF_SLUGS,
   type IDirectionType,
 } from "../src/constants";
 import { sanitizeStateForClient } from "../src/utils/helper";
@@ -69,11 +70,11 @@ io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
 
           // Update score based on the change
           if (!previousOption && option.isCorrect) {
-            currentState.currentScore += 1;
+            currentState[DIFF_SLUGS.CURRENT_SCORE] += 1;
           } else if (previousOption?.isCorrect && !option.isCorrect) {
-            currentState.currentScore -= 1;
+            currentState[DIFF_SLUGS.CURRENT_SCORE] -= 1;
           } else if (!previousOption?.isCorrect && option.isCorrect) {
-            currentState.currentScore += 1;
+            currentState[DIFF_SLUGS.CURRENT_SCORE] += 1;
           }
 
           // Set feedback text and class based on the selected option
@@ -99,14 +100,14 @@ io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
 
     if (
       direction === DIRECTIONS.NEXT &&
-      currentState.currentQuestionIndex < 2
+      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] < 2
     ) {
-      currentState.currentQuestionIndex += 1;
+      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] += 1;
     } else if (
       direction === DIRECTIONS.PREVIOUS &&
-      currentState.currentQuestionIndex > 0
+      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] > 0
     ) {
-      currentState.currentQuestionIndex -= 1;
+      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] -= 1;
     }
 
     // Generate diff
