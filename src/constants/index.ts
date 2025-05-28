@@ -130,7 +130,6 @@ export const DIFF_SLUGS = {
   CURRENT_SCORE: "currentScore",
   QUESTIONS: "questions",
   CURRENT_QUESTION_INDEX: "currentQuestionIndex",
-  CURRENTSCORE: "currentScore",
 };
 
 export type IMCQData = typeof INITIAL_DATA;
