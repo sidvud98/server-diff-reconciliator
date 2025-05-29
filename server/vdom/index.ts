@@ -67,7 +67,17 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
 
     case QUIZ_ACTION_TYPES.NAVIGATE: {
       const { direction } = action.payload;
-      currentState.currentQuestion += direction;
+      const newQuestionIndex = currentState.currentQuestion + direction;
+
+      // Validate navigation bounds
+      if (
+        newQuestionIndex < 0 ||
+        newQuestionIndex >= quizData.questions.length
+      ) {
+        return oldVDOM; // Return original VDOM if navigation is out of bounds
+      }
+
+      currentState.currentQuestion = newQuestionIndex;
 
       // Update question
       const question = quizData.questions[currentState.currentQuestion];

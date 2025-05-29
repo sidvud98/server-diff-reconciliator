@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import { createRoot, type Root } from "react-dom/client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
 import { QUIZ_ACTION_TYPES, SERVER_URL, SOCKET_EVENT_NAMES } from "@constants";
@@ -7,119 +8,119 @@ import { QUIZ_ACTION_TYPES, SERVER_URL, SOCKET_EVENT_NAMES } from "@constants";
 // Initialize socket outside of component to prevent re-initialization
 const socket: Socket = io(SERVER_URL);
 
-function createElement(vnode: VNode): HTMLElement | Text {
+function createElement(vnode: VNode): React.ReactElement {
   if (vnode.type === "text") {
-    return document.createTextNode(vnode.props.content || "");
+    return React.createElement(React.Fragment, null, vnode.props.content || "");
   }
 
-  const element = document.createElement(vnode.type) as HTMLElement;
+  // Prepare props for React element
+  const props: Record<string, any> = { ...vnode.props };
 
-  // Set properties
-  Object.entries(vnode.props).forEach(([key, value]) => {
-    if (key === "className" && typeof value === "string") {
-      element.className = value;
-    } else if (key === "selected") {
-      if (value) {
-        element.classList.add("selected");
-      } else {
-        element.classList.remove("selected");
-      }
-    } else if (key === "correct" && value !== null) {
-      element.classList.remove("correct", "incorrect");
-      if (value === true) element.classList.add("correct");
-      if (value === false) element.classList.add("incorrect");
-    } else if (key === "disabled" && vnode.type === "button") {
-      (element as HTMLButtonElement).disabled = Boolean(value);
-    } else if (key !== "content" && typeof value === "string") {
-      element.setAttribute(key, value);
-    }
-  });
+  // Handle class names
+  const classNames = [props.className];
+  if (props.selected) classNames.push("selected");
+  if (props.correct !== null && props.correct !== undefined) {
+    classNames.push(props.correct ? "correct" : "incorrect");
+  }
+  props.className = classNames.filter(Boolean).join(" ");
 
-  // Add event listeners
+  // Add click handlers
   if (vnode.type === "div" && vnode.props.className === "option") {
-    element.addEventListener("click", () => {
-      const questionContainer = element.closest(".question-container");
+    props.onClick = () => {
+      const element = document.querySelector(`[data-key="${vnode.key}"]`);
+      const questionContainer = element?.closest(".question-container");
       const questionIndex = parseInt(
         questionContainer?.getAttribute("data-question-index") || "0"
       );
-      const optionIndex = Array.from(
-        element.parentElement?.children || []
-      ).indexOf(element);
-      console.log("clicked option:", questionIndex, optionIndex);
+      const optionKey = vnode.key as string;
+      const optionIndex = parseInt(optionKey.split("-")[1]);
+
       socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
         type: QUIZ_ACTION_TYPES.ANSWER_SELECTED,
         payload: { questionIndex, optionIndex },
       });
-    });
+    };
   }
 
   if (vnode.type === "button" && vnode.props.className === "nav-button") {
-    element.addEventListener("click", () => {
+    props.onClick = () => {
       const direction = vnode.key === "prev" ? -1 : 1;
-      console.log("clicked navigate:", direction);
-      socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
-        type: QUIZ_ACTION_TYPES.NAVIGATE,
-        payload: { direction },
-      });
-    });
+      const questionContainer = document.querySelector(".question-container");
+      const currentQuestionIndex = parseInt(
+        questionContainer?.getAttribute("data-question-index") || "0"
+      );
+      const newIndex = currentQuestionIndex + direction;
+
+      if (newIndex >= 0 && newIndex <= 2) {
+        // We know there are 3 questions
+        socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
+          type: QUIZ_ACTION_TYPES.NAVIGATE,
+          payload: { direction },
+        });
+      }
+    };
   }
 
-  // Set data-key attribute if key exists
+  // Set data attributes
   if (vnode.key !== undefined) {
-    element.setAttribute("data-key", String(vnode.key));
+    props["data-key"] = String(vnode.key);
   }
 
-  // Create and append children
-  if (vnode.children) {
-    vnode.children.forEach((child) => {
-      element.appendChild(createElement(child));
-    });
-  }
-
-  return element;
+  // Create React element with children
+  return React.createElement(
+    vnode.type,
+    props,
+    vnode.children?.map((child) => createElement(child))
+  );
 }
 
 const ServerDiffReconciliator = () => {
-  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<Root | null>(null);
+  const [vdom, setVdom] = useState<VNode | null>(null);
 
   useEffect(() => {
+    // Initialize React root
+    if (containerRef.current && !rootRef.current) {
+      rootRef.current = createRoot(containerRef.current);
+    }
+
     // Handle reconnection
     const handleReconnect = () => {
       console.log("Socket reconnected, cleaning up old state");
-      if (rootElement) {
-        // Clear all children
-        while (rootElement.firstChild) {
-          rootElement.removeChild(rootElement.firstChild);
-        }
-        setRootElement(null);
-      }
+      setVdom(null);
     };
 
     socket.on("connect", handleReconnect);
 
-    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
-      console.log("Received initial VDOM", vdom);
-      const newRoot = createElement(vdom);
-      if (newRoot instanceof HTMLElement) {
-        setRootElement(newRoot);
-      }
+    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (newVdom: VNode) => {
+      console.log("Received initial VDOM", newVdom);
+      setVdom(newVdom);
     });
 
     socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
       console.log("changes received:", changes);
-      changes.forEach((newNode) => {
-        if (typeof newNode.key !== "undefined") {
-          const existing = document.querySelector(
-            `[data-key="${newNode.key}"]`
-          );
-          if (existing instanceof HTMLElement) {
-            const parent = existing.parentElement;
-            const newElement = createElement(newNode);
-            if (newElement instanceof HTMLElement && parent) {
-              parent.replaceChild(newElement, existing);
+      setVdom((prev) => {
+        if (!prev) return prev;
+        const updated = JSON.parse(JSON.stringify(prev)); // Deep clone to avoid mutation
+
+        changes.forEach((change) => {
+          const updateNode = (node: VNode) => {
+            if (node.key === change.key) {
+              Object.assign(node, change);
+              return true;
             }
-          }
-        }
+            if (node.children) {
+              for (const child of node.children) {
+                if (updateNode(child)) return true;
+              }
+            }
+            return false;
+          };
+          updateNode(updated);
+        });
+
+        return updated;
       });
     });
 
@@ -127,18 +128,30 @@ const ServerDiffReconciliator = () => {
       socket.off("connect");
       socket.off(SOCKET_EVENT_NAMES.INITIAL_VDOM);
       socket.off(SOCKET_EVENT_NAMES.VDOM_UPDATE);
+      if (rootRef.current) {
+        rootRef.current.unmount();
+        rootRef.current = null;
+      }
     };
-  }, [rootElement]);
+  }, []);
 
-  return (
-    <RootContainer
-      ref={(el) => {
-        if (el && rootElement && !el.hasChildNodes()) {
-          el.appendChild(rootElement);
-        }
-      }}
-    />
-  );
+  // Create and maintain React root
+  useEffect(() => {
+    if (containerRef.current && !rootRef.current) {
+      rootRef.current = createRoot(containerRef.current);
+    }
+  }, []);
+
+  // Render VDOM changes
+  useEffect(() => {
+    if (rootRef.current && vdom) {
+      console.log("Rendering updated VDOM");
+      const element = createElement(vdom);
+      rootRef.current.render(element);
+    }
+  }, [vdom]);
+
+  return <RootContainer ref={containerRef} />;
 };
 
 export default ServerDiffReconciliator;
