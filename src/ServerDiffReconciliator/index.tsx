@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
+import { QUIZ_ACTION_TYPES, SERVER_URL, SOCKET_EVENT_NAMES } from "@constants";
 
 // Initialize socket outside of component to prevent re-initialization
-const socket: Socket = io("http://localhost:3001");
+const socket: Socket = io(SERVER_URL);
 
 function createElement(vnode: VNode): HTMLElement | Text {
   if (vnode.type === "text") {
@@ -45,8 +46,8 @@ function createElement(vnode: VNode): HTMLElement | Text {
         element.parentElement?.children || []
       ).indexOf(element);
       console.log("clicked option:", questionIndex, optionIndex);
-      socket.emit("quiz-action", {
-        type: "ANSWER_SELECTED",
+      socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
+        type: QUIZ_ACTION_TYPES.ANSWER_SELECTED,
         payload: { questionIndex, optionIndex },
       });
     });
@@ -56,8 +57,8 @@ function createElement(vnode: VNode): HTMLElement | Text {
     element.addEventListener("click", () => {
       const direction = vnode.key === "prev" ? -1 : 1;
       console.log("clicked navigate:", direction);
-      socket.emit("quiz-action", {
-        type: "NAVIGATE",
+      socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
+        type: QUIZ_ACTION_TYPES.NAVIGATE,
         payload: { direction },
       });
     });
@@ -82,14 +83,14 @@ const ServerDiffReconciliator = () => {
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    socket.on("initial-vdom", (vdom: VNode) => {
+    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
       const newRoot = createElement(vdom);
       if (newRoot instanceof HTMLElement) {
         setRootElement(newRoot);
       }
     });
 
-    socket.on("vdom-update", (changes: VNode[]) => {
+    socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
       console.log("changes received:", changes);
       changes.forEach((newNode) => {
         if (typeof newNode.key !== "undefined") {
@@ -108,8 +109,8 @@ const ServerDiffReconciliator = () => {
     });
 
     return () => {
-      socket.off("initial-vdom");
-      socket.off("vdom-update");
+      socket.off(SOCKET_EVENT_NAMES.INITIAL_VDOM);
+      socket.off(SOCKET_EVENT_NAMES.VDOM_UPDATE);
     };
   }, []);
 

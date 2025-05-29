@@ -23,6 +23,14 @@ export const quizData = {
   ],
 };
 
+export const SOCKET_EVENT_NAMES = {
+  INITIAL_VDOM: "initial-vdom",
+  VDOM_UPDATE: "vdom-update",
+  QUIZ_ACTION: "quiz-action",
+  CONNECTION: "connection",
+  DISCONNECT: "disconnect",
+};
+
 export const initialState: QuizState = {
   currentQuestion: 0,
   score: 0,
@@ -122,3 +130,14 @@ export const initialVDOM: VNode = {
     },
   ],
 };
+
+export const CLIENT_URL = "http://localhost:5173";
+export const SERVER_URL = "http://localhost:3001";
+export const SERVER_PORT = 3001;
+
+export const QUIZ_ACTION_TYPES = {
+  ANSWER_SELECTED: "ANSWER_SELECTED",
+  NAVIGATE: "NAVIGATE",
+} as const;
+export type QuizActionType =
+  (typeof QUIZ_ACTION_TYPES)[keyof typeof QUIZ_ACTION_TYPES];

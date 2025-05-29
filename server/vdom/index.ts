@@ -1,5 +1,5 @@
 import type { QuizAction, VNode } from "./vdom.interface";
-import { initialState, quizData } from "../constants";
+import { initialState, QUIZ_ACTION_TYPES, quizData } from "../constants";
 
 let currentState = { ...initialState };
 
@@ -12,7 +12,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
   const newVDOM = JSON.parse(JSON.stringify(oldVDOM));
 
   switch (action.type) {
-    case "ANSWER_SELECTED": {
+    case QUIZ_ACTION_TYPES.ANSWER_SELECTED: {
       const { questionIndex, optionIndex } = action.payload;
       const correct =
         optionIndex === quizData.questions[questionIndex].correctAnswer;
@@ -58,7 +58,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       return newVDOM;
     }
 
-    case "NAVIGATE": {
+    case QUIZ_ACTION_TYPES.NAVIGATE: {
       const { direction } = action.payload;
       currentState.currentQuestion += direction;
 

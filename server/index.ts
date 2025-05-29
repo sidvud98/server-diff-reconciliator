@@ -2,14 +2,19 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { updateVDOM, diffVDOM, resetQuizState } from "./vdom";
-import { initialVDOM } from "./constants";
+import {
+  CLIENT_URL,
+  initialVDOM,
+  SERVER_PORT,
+  SOCKET_EVENT_NAMES,
+} from "./constants";
 import type { QuizAction } from "./vdom/vdom.interface";
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: CLIENT_URL,
     methods: ["GET", "POST"],
   },
 });
@@ -24,31 +29,30 @@ const resetServerState = () => {
 
 let currentVDOM = initialVDOM;
 
-io.on("connection", (socket) => {
+io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
   console.log("Client connected");
 
   // Reset server state on new connection
   resetServerState();
 
   // Send initial VDOM to client
-  socket.emit("initial-vdom", currentVDOM);
+  socket.emit(SOCKET_EVENT_NAMES.INITIAL_VDOM, currentVDOM);
 
   // Handle quiz interactions
-  socket.on("quiz-action", (action: QuizAction) => {
+  socket.on(SOCKET_EVENT_NAMES.QUIZ_ACTION, (action: QuizAction) => {
     const newVDOM = updateVDOM(currentVDOM, action);
     const diff = diffVDOM(currentVDOM, newVDOM);
     currentVDOM = newVDOM;
 
     // Send only the changed subtrees to client
-    socket.emit("vdom-update", diff);
+    socket.emit(SOCKET_EVENT_NAMES.VDOM_UPDATE, diff);
   });
 
-  socket.on("disconnect", () => {
+  socket.on(SOCKET_EVENT_NAMES.DISCONNECT, () => {
     console.log("Client disconnected");
   });
 });
 
-const PORT = 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+httpServer.listen(SERVER_PORT, () => {
+  console.log(`Server running on port ${SERVER_PORT}`);
 });
