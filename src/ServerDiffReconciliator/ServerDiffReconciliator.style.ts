@@ -1,82 +1,81 @@
 import styled from "styled-components";
+import { type Theme } from "../theme";
 
-export const RootContainer = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  padding: 16px;
+export const RootContainer = styled.div<{ theme: Theme }>`
+  background-color: ${({ theme }) => theme.colors.backgroundLight};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => theme.spacing.md};
   display: flex;
   justify-content: space-between;
   align-items: stretch;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  color: #333;
+  gap: ${({ theme }) => theme.spacing.md};
+  box-shadow: ${({ theme }) => theme.shadows.default};
+  color: ${({ theme }) => theme.colors.text.primary};
 
   .quiz-container {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: ${({ theme }) => theme.spacing.lg};
   }
 
   .score {
-    font-size: 30px;
+    font-size: ${({ theme }) => theme.fontSize.medium};
     text-align: center;
   }
 
   .question-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: ${({ theme }) => theme.spacing.sm};
   }
 
   .options {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: ${({ theme }) => theme.spacing.sm};
   }
 
   .option {
-    padding: 1rem;
-    border: 2px solid #ccc;
-    border-radius: 8px;
+    padding: ${({ theme }) => theme.spacing.sm};
+    border: 2px solid ${({ theme }) => theme.colors.border.default};
+    border-radius: ${({ theme }) => theme.borderRadius.md};
     cursor: pointer;
-    transition: all 0.2s;
 
     &.selected {
-      border-color: #646cff;
+      border-color: ${({ theme }) => theme.colors.primary};
       background-color: #f0f0ff;
     }
 
     &.correct {
-      border-color: #4caf50;
-      color: #4caf50;
+      border-color: ${({ theme }) => theme.colors.status.correct};
+      color: ${({ theme }) => theme.colors.status.correct};
     }
 
     &.incorrect {
-      border-color: #f44336;
-      color: #f44336;
+      border-color: ${({ theme }) => theme.colors.status.incorrect};
+      color: ${({ theme }) => theme.colors.status.incorrect};
     }
   }
 
   .navigation {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: ${({ theme }) => theme.spacing.sm};
   }
 
   .nav-button {
-    padding: 0.5rem 1rem;
-    font-size: 1.5rem;
+    padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
+    font-size: ${({ theme }) => theme.fontSize.medium};
     border: none;
-    background-color: #646cff;
-    color: white;
-    border-radius: 4px;
+    background-color: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.colors.text.light};
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
     cursor: pointer;
-    transition: all 0.2s;
-  }
 
-  .nav-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+    &:disabled {
+      background-color: ${({ theme }) => theme.colors.border.default};
+      cursor: not-allowed;
+    }
   }
 `;
