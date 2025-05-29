@@ -1,89 +1,82 @@
 import styled from "styled-components";
 
-export const AppWrapper = styled.div`
-  .quiz-container-wrapper {
-    background-color: white;
-    border-radius: 12px;
-    padding: 16px;
+export const RootContainer = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  color: #333;
+
+  .quiz-container {
     display: flex;
-    justify-content: space-between;
-    align-items: stretch;
     flex-direction: column;
-    gap: 16px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    gap: 2rem;
+  }
 
-    .score {
-      font-size: 30px;
-      text-align: center;
+  .score {
+    font-size: 30px;
+    text-align: center;
+  }
+
+  .question-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .option {
+    padding: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.selected {
+      border-color: #646cff;
+      background-color: #f0f0ff;
     }
 
-    h2 {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      margin: 0;
+    &.correct {
+      border-color: #4caf50;
+      color: #4caf50;
     }
 
-    .question-container {
-      display: flex;
-      justify-content: start;
-      align-items: start;
-      flex-direction: column;
-      min-height: 230px;
-      width: 600px;
-      gap: 12px;
-
-      .options {
-        display: flex;
-        align-items: start;
-        flex-direction: column;
-
-        label.option {
-          cursor: pointer;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-        }
-      }
-
-      .feedback {
-        font-weight: 600;
-        font-size: 20px;
-        color: white;
-        border-radius: 8px;
-        padding: 2px 8px;
-        min-width: 106px;
-        text-align: center;
-        user-select: none;
-        margin: auto;
-
-        &.correct {
-          background-color: #6cdb6c;
-        }
-        &.incorrect {
-          background-color: red;
-        }
-      }
+    &.incorrect {
+      border-color: #f44336;
+      color: #f44336;
     }
+  }
 
-    .navigation {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      user-select: none;
+  .navigation {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
 
-      .nav-button {
-        width: 50%;
-        &.disabled {
-          cursor: not-allowed;
-          border: none;
-        }
-      }
-    }
+  .nav-button {
+    padding: 0.5rem 1rem;
+    font-size: 1.5rem;
+    border: none;
+    background-color: #646cff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 `;

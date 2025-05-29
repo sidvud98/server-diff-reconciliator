@@ -1,21 +1,15 @@
-export interface IOption {
-  id: number;
-  text: string;
+interface VNodeProps {
+  className?: string;
+  selected?: boolean;
+  correct?: boolean | null;
+  disabled?: boolean;
+  content?: string;
+  [key: string]: unknown;
 }
 
-export interface IQuestion {
-  id: number;
-  text: string;
-  options: IOption[];
-  selectedOption: number | null;
-  answered: boolean;
-  feedbackText: string;
-  feedbackClass: string;
-}
-
-export interface IQuizState {
-  currentScore: number;
-  totalQuestions: number;
-  currentQuestionIndex: number;
-  questions: IQuestion[];
+export interface VNode {
+  type: string;
+  props: VNodeProps;
+  key?: string | number;
+  children?: VNode[];
 }

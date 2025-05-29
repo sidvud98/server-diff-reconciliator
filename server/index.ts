@@ -1,125 +1,54 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import jsonpatch from "fast-json-patch";
-import {
-  INITIAL_DATA,
-  CLIENT_URL,
-  OPTIONS,
-  OPTIONS_CLASSES,
-  SOCKET_EVENT_NAMES,
-  SERVER_PORT,
-  DIRECTIONS,
-  DIFF_SLUGS,
-  type IDirectionType,
-} from "../src/constants";
-import { sanitizeStateForClient } from "../src/utils/helper";
-import type {
-  IQuestion,
-  IOption,
-} from "../src/ServerDiffReconciliator/ServerDiffReconciliator.interface";
+import { updateVDOM, diffVDOM, resetQuizState } from "./vdom";
+import { initialVDOM } from "./constants";
+import type { QuizAction } from "./vdom/vdom.interface";
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: CLIENT_URL,
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
 
-// Initial state
-const initialState = INITIAL_DATA;
+// Create function to reset server state
+const resetServerState = () => {
+  // Reset the VDOM to initial state
+  currentVDOM = JSON.parse(JSON.stringify(initialVDOM));
+  // Reset the state in vdom.ts
+  resetQuizState();
+};
 
-// Keep track of current state for each client
-const clientStates = new Map();
+let currentVDOM = initialVDOM;
 
-io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
-  // Initialize client state
-  clientStates.set(socket.id, JSON.parse(JSON.stringify(initialState)));
+io.on("connection", (socket) => {
+  console.log("Client connected");
 
-  // Send initial state to client
-  socket.emit(
-    SOCKET_EVENT_NAMES.INITIAL_STATE,
-    sanitizeStateForClient(initialState)
-  );
+  // Reset server state on new connection
+  resetServerState();
 
-  // Handle option selection
-  socket.on(
-    SOCKET_EVENT_NAMES.SELECT_OPTION,
-    ({ questionId, optionId }: { questionId: number; optionId: number }) => {
-      const currentState = clientStates.get(socket.id);
-      const previousState = JSON.parse(JSON.stringify(currentState));
+  // Send initial VDOM to client
+  socket.emit("initial-vdom", currentVDOM);
 
-      const question = currentState.questions.find(
-        (q: IQuestion) => q.id === questionId
-      );
-      if (question) {
-        const option = question.options.find(
-          (opt: IOption) => opt.id === optionId
-        );
-        if (option) {
-          // Get previous answer state to handle score changes
-          const previousOption = question.options.find(
-            (opt: IOption) => opt.id === question.selectedOption
-          );
+  // Handle quiz interactions
+  socket.on("quiz-action", (action: QuizAction) => {
+    const newVDOM = updateVDOM(currentVDOM, action);
+    const diff = diffVDOM(currentVDOM, newVDOM);
+    currentVDOM = newVDOM;
 
-          // Update selected option
-          question.selectedOption = optionId;
-          question.answered = true;
-
-          // Update score based on the change
-          if (!previousOption && option.isCorrect) {
-            currentState[DIFF_SLUGS.CURRENT_SCORE] += 1;
-          } else if (previousOption?.isCorrect && !option.isCorrect) {
-            currentState[DIFF_SLUGS.CURRENT_SCORE] -= 1;
-          } else if (!previousOption?.isCorrect && option.isCorrect) {
-            currentState[DIFF_SLUGS.CURRENT_SCORE] += 1;
-          }
-
-          // Set feedback text and class based on the selected option
-          question.feedbackText = option.isCorrect
-            ? OPTIONS.CORRECT
-            : OPTIONS.INCORRECT;
-          question.feedbackClass = option.isCorrect
-            ? OPTIONS_CLASSES.CORRECT
-            : OPTIONS_CLASSES.INCORRECT;
-        }
-      }
-
-      // Generate diff
-      const patches = jsonpatch.compare(previousState, currentState);
-      socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
-    }
-  );
-
-  // Handle question navigation
-  socket.on(SOCKET_EVENT_NAMES.NAVIGATE, (direction: IDirectionType) => {
-    const currentState = clientStates.get(socket.id);
-    const previousState = JSON.parse(JSON.stringify(currentState));
-
-    if (
-      direction === DIRECTIONS.NEXT &&
-      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] < 2
-    ) {
-      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] += 1;
-    } else if (
-      direction === DIRECTIONS.PREVIOUS &&
-      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] > 0
-    ) {
-      currentState[DIFF_SLUGS.CURRENT_QUESTION_INDEX] -= 1;
-    }
-
-    // Generate diff
-    const patches = jsonpatch.compare(previousState, currentState);
-    socket.emit(SOCKET_EVENT_NAMES.STATE_UPDATE, patches);
+    // Send only the changed subtrees to client
+    socket.emit("vdom-update", diff);
   });
 
-  socket.on(SOCKET_EVENT_NAMES.DISCONNECT, () => {
-    clientStates.delete(socket.id);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
   });
 });
 
-httpServer.listen(SERVER_PORT, () => {
-  console.log(`Server running on port ${SERVER_PORT}`);
+const PORT = 3001;
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
