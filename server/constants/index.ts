@@ -4,21 +4,36 @@ export const quizData = {
   questions: [
     {
       id: 1,
-      text: "What is the capital of France?",
-      options: ["London", "Berlin", "Paris", "Madrid"],
-      correctAnswer: 2,
+      text: "Which country recently overtook Japan to become the world's 4th largest economy?",
+      options: [
+        "The United Kingdom overtook Japan to become the 4th largest economy.",
+        "India overtook Japan to become the 4th largest economy.",
+        "Germany overtook Japan to become the 4th largest economy.",
+        "Brazil overtook Japan to become the 4th largest economy.",
+      ],
+      correctAnswer: 1,
     },
     {
       id: 2,
-      text: "Which planet is known as the Red Planet?",
-      options: ["Venus", "Mars", "Jupiter", "Saturn"],
-      correctAnswer: 1,
+      text: "Which company became the world's first to hit a $3 trillion market value in stock markets?",
+      options: [
+        "Amazon was the first company to hit a $3 trillion valuation.",
+        "Microsoft was the first company to reach a $3 trillion valuation.",
+        "Apple was the first company to hit a $3 trillion valuation.",
+        "Google was the first company to hit a $3 trillion valuation.",
+      ],
+      correctAnswer: 2,
     },
     {
       id: 3,
-      text: "What is 2 + 2?",
-      options: ["3", "4", "5", "6"],
-      correctAnswer: 1,
+      text: "Which country's football team won the 2022 FIFA World Cup?",
+      options: [
+        "The French football team won the 2022 FIFA World Cup.",
+        "The Brazilian football team won the 2022 FIFA World Cup.",
+        "The German football team won the 2022 FIFA World Cup.",
+        "The Argentinian football team won the 2022 FIFA World Cup.",
+      ],
+      correctAnswer: 3,
     },
   ],
 };

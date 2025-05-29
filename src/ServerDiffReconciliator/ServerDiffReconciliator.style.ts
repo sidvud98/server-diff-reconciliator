@@ -12,6 +12,7 @@ export const RootContainer = styled.div<{ theme: Theme }>`
   gap: ${({ theme }) => theme.spacing.md};
   box-shadow: ${({ theme }) => theme.shadows.default};
   color: ${({ theme }) => theme.colors.text.primary};
+  width: 64rem;
 
   .quiz-container {
     display: flex;
@@ -62,20 +63,21 @@ export const RootContainer = styled.div<{ theme: Theme }>`
     display: flex;
     justify-content: center;
     gap: ${({ theme }) => theme.spacing.sm};
-  }
 
-  .nav-button {
-    padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
-    font-size: ${({ theme }) => theme.fontSize.medium};
-    border: none;
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: ${({ theme }) => theme.colors.text.light};
-    border-radius: ${({ theme }) => theme.borderRadius.sm};
-    cursor: pointer;
+    .nav-button {
+      padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
+      font-size: ${({ theme }) => theme.fontSize.medium};
+      border: none;
+      background-color: ${({ theme }) => theme.colors.primary};
+      color: ${({ theme }) => theme.colors.text.light};
+      border-radius: ${({ theme }) => theme.borderRadius.sm};
+      cursor: pointer;
+      width: 50%;
 
-    &:disabled {
-      background-color: ${({ theme }) => theme.colors.border.default};
-      cursor: not-allowed;
+      &:disabled {
+        background-color: ${({ theme }) => theme.colors.border.default};
+        cursor: not-allowed;
+      }
     }
   }
 `;
