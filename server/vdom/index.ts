@@ -17,18 +17,23 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       const correct =
         optionIndex === quizData.questions[questionIndex].correctAnswer;
 
-      // Update score if this is a new answer
-      if (currentState.answers[questionIndex] === null) {
-        currentState.score = correct
-          ? currentState.score + 1
-          : currentState.score;
-      } else if (currentState.answers[questionIndex] !== optionIndex) {
-        // If changing an answer
-        const wasCorrect =
-          currentState.answers[questionIndex] ===
-          quizData.questions[questionIndex].correctAnswer;
-        if (wasCorrect && !correct) currentState.score--;
-        if (!wasCorrect && correct) currentState.score++;
+      // Update score if this is a new answer or changing an answer
+      if (currentState.answers[questionIndex] !== optionIndex) {
+        if (currentState.answers[questionIndex] === null) {
+          // First answer for this question
+          if (correct) currentState.score++;
+        } else {
+          // Changing an existing answer
+          const wasCorrect =
+            currentState.answers[questionIndex] ===
+            quizData.questions[questionIndex].correctAnswer;
+          if (wasCorrect && !correct) {
+            currentState.score = Math.max(0, currentState.score - 1);
+          }
+          if (!wasCorrect && correct) {
+            currentState.score++;
+          }
+        }
       }
 
       currentState.answers[questionIndex] = optionIndex;
