@@ -25,6 +25,7 @@ const resetServerState = () => {
   currentVDOM = JSON.parse(JSON.stringify(initialVDOM));
   // Reset the state in vdom.ts
   resetQuizState();
+  console.log("Server state fully reset", { currentVDOM });
 };
 
 let currentVDOM = initialVDOM;
@@ -34,9 +35,13 @@ io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
 
   // Reset server state on new connection
   resetServerState();
+  console.log("Server state reset for new connection");
 
   // Send initial VDOM to client
-  socket.emit(SOCKET_EVENT_NAMES.INITIAL_VDOM, currentVDOM);
+  socket.emit(
+    SOCKET_EVENT_NAMES.INITIAL_VDOM,
+    JSON.parse(JSON.stringify(initialVDOM))
+  );
 
   // Handle quiz interactions
   socket.on(SOCKET_EVENT_NAMES.QUIZ_ACTION, (action: QuizAction) => {

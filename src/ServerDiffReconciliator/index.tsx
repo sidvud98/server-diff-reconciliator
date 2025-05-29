@@ -83,7 +83,22 @@ const ServerDiffReconciliator = () => {
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
+    // Handle reconnection
+    const handleReconnect = () => {
+      console.log("Socket reconnected, cleaning up old state");
+      if (rootElement) {
+        // Clear all children
+        while (rootElement.firstChild) {
+          rootElement.removeChild(rootElement.firstChild);
+        }
+        setRootElement(null);
+      }
+    };
+
+    socket.on("connect", handleReconnect);
+
     socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
+      console.log("Received initial VDOM", vdom);
       const newRoot = createElement(vdom);
       if (newRoot instanceof HTMLElement) {
         setRootElement(newRoot);
@@ -109,10 +124,11 @@ const ServerDiffReconciliator = () => {
     });
 
     return () => {
+      socket.off("connect");
       socket.off(SOCKET_EVENT_NAMES.INITIAL_VDOM);
       socket.off(SOCKET_EVENT_NAMES.VDOM_UPDATE);
     };
-  }, []);
+  }, [rootElement]);
 
   return (
     <RootContainer

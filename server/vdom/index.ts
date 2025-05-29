@@ -5,7 +5,9 @@ let currentState = { ...initialState };
 
 // Function to reset quiz state to initial values
 export const resetQuizState = () => {
-  currentState = { ...initialState };
+  // Deep clone to ensure we get a fresh copy of initial state
+  currentState = JSON.parse(JSON.stringify(initialState));
+  console.log("Quiz state reset to", currentState);
 };
 
 export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
