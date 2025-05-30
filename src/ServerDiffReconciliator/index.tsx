@@ -2,9 +2,15 @@ import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
-import { CLASSNAMES, QUIZ_ACTION_TYPES, SOCKET_EVENT_NAMES } from "@constants";
+import {
+  CLASSNAMES,
+  VDOM_PROPS,
+  QUIZ_ACTION_TYPES,
+  SOCKET_EVENT_NAMES,
+  SERVER_URL,
+} from "@constants";
 
-const socket: Socket = io("http://localhost:3001");
+const socket: Socket = io(SERVER_URL);
 
 const createCustomElement = (vnode: VNode): HTMLElement | Text => {
   // Handle text nodes (leaf nodes in our virtual DOM)
@@ -17,11 +23,11 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
 
   // Process all properties from the virtual node
   Object.entries(vnode.props).forEach(([key, value]) => {
-    if (key === "className" && typeof value === "string") {
+    if (key === VDOM_PROPS.CLASSNAME && typeof value === "string") {
       element.className = value;
     }
     // Handle selection state for quiz options
-    else if (key === "selected") {
+    else if (key === VDOM_PROPS.SELECTED) {
       if (value) {
         element.classList.add(CLASSNAMES.SELECTED);
       } else {
@@ -29,27 +35,29 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
       }
     }
     // Handle correct/incorrect states for quiz answers
-    else if (key === "correct" && value !== null) {
+    else if (key === VDOM_PROPS.CORRECT && value !== null) {
       // Clear both states first to ensure clean state
       element.classList.remove(CLASSNAMES.CORRECT, CLASSNAMES.INCORRECT);
       if (value === true) element.classList.add(CLASSNAMES.CORRECT);
       if (value === false) element.classList.add(CLASSNAMES.INCORRECT);
     }
     // Handle disabled state for navigation buttons
-    else if (key === "disabled" && vnode.type === "button") {
+    else if (key === VDOM_PROPS.DISABLED && vnode.type === "button") {
       (element as HTMLButtonElement).disabled = Boolean(value);
     }
     // Handle all other string attributes (except content which is handled separately)
-    else if (key !== "content" && typeof value === "string") {
+    else if (key !== VDOM_PROPS.CONTENT && typeof value === "string") {
       element.setAttribute(key, value);
     }
   });
 
   // Add click handler for quiz options (divs with class "option")
-  if (vnode.type === "div" && vnode.props.className === "option") {
+  if (vnode.type === "div" && vnode.props.className === CLASSNAMES.OPTION) {
     element.addEventListener("click", () => {
       // Find the parent question container by traversing up the DOM tree
-      const questionContainer = element.closest(".question-container");
+      const questionContainer = element.closest(
+        `.${CLASSNAMES.QUESTION_CONTAINER}`
+      );
 
       // Get the question index from the container's data attribute
       const questionIndex = parseInt(
@@ -62,16 +70,19 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
       );
 
       // Emit event to server with the question and option indices
-      socket.emit("quiz-action", {
+      socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
         type: QUIZ_ACTION_TYPES.ANSWER_SELECTED,
         payload: { questionIndex, optionIndex },
       });
     });
   }
 
-  if (vnode.type === "button" && vnode.props.className === "nav-button") {
+  if (
+    vnode.type === "button" &&
+    vnode.props.className === CLASSNAMES.NAV_BUTTON
+  ) {
     element.addEventListener("click", () => {
-      const direction = vnode.key === "prev" ? -1 : 1;
+      const direction = vnode.key === VDOM_PROPS.PREVIOUS ? -1 : 1;
       socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
         type: QUIZ_ACTION_TYPES.NAVIGATE,
         payload: { direction },

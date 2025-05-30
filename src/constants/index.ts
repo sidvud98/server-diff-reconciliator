@@ -12,9 +12,21 @@ export const QUIZ_ACTION_TYPES = {
   ANSWER_SELECTED: "ANSWER_SELECTED",
 };
 
+export const VDOM_PROPS = {
+  CLASSNAME: "className",
+  SELECTED: "selected",
+  CORRECT: "correct",
+  DISABLED: "disabled",
+  CONTENT: "content",
+  PREVIOUS: "prev",
+};
+
 export const CLASSNAMES = {
   CORRECT: "correct",
   INCORRECT: "incorrect",
   DISABLED: "disabled",
   SELECTED: "selected",
+  OPTION: "option",
+  NAV_BUTTON: "nav-button",
+  QUESTION_CONTAINER: "question-container",
 };
