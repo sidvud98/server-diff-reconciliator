@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
+import { CLASSNAMES, QUIZ_ACTION_TYPES, SOCKET_EVENT_NAMES } from "@constants";
 
 const socket: Socket = io("http://localhost:3001");
 
@@ -22,17 +23,17 @@ const createElement = (vnode: VNode): HTMLElement | Text => {
     // Handle selection state for quiz options
     else if (key === "selected") {
       if (value) {
-        element.classList.add("selected");
+        element.classList.add(CLASSNAMES.SELECTED);
       } else {
-        element.classList.remove("selected");
+        element.classList.remove(CLASSNAMES.SELECTED);
       }
     }
     // Handle correct/incorrect states for quiz answers
     else if (key === "correct" && value !== null) {
       // Clear both states first to ensure clean state
-      element.classList.remove("correct", "incorrect");
-      if (value === true) element.classList.add("correct");
-      if (value === false) element.classList.add("incorrect");
+      element.classList.remove(CLASSNAMES.CORRECT, CLASSNAMES.INCORRECT);
+      if (value === true) element.classList.add(CLASSNAMES.CORRECT);
+      if (value === false) element.classList.add(CLASSNAMES.INCORRECT);
     }
     // Handle disabled state for navigation buttons
     else if (key === "disabled" && vnode.type === "button") {
@@ -44,18 +45,25 @@ const createElement = (vnode: VNode): HTMLElement | Text => {
     }
   });
 
-  // Add event listeners
+  // Add click handler for quiz options (divs with class "option")
   if (vnode.type === "div" && vnode.props.className === "option") {
     element.addEventListener("click", () => {
+      // Find the parent question container by traversing up the DOM tree
       const questionContainer = element.closest(".question-container");
+
+      // Get the question index from the container's data attribute
       const questionIndex = parseInt(
         questionContainer?.getAttribute("data-question-index") || "0"
       );
-      const optionIndex = Array.from(
-        element.parentElement?.children || []
-      ).indexOf(element);
+
+      // Get option index directly from the data-key attribute (format: "option-{index}")
+      const optionIndex = parseInt(
+        element.getAttribute("data-key")?.split("-")[1] || "0"
+      );
+
+      // Emit event to server with the question and option indices
       socket.emit("quiz-action", {
-        type: "ANSWER_SELECTED",
+        type: QUIZ_ACTION_TYPES.ANSWER_SELECTED,
         payload: { questionIndex, optionIndex },
       });
     });
@@ -64,9 +72,8 @@ const createElement = (vnode: VNode): HTMLElement | Text => {
   if (vnode.type === "button" && vnode.props.className === "nav-button") {
     element.addEventListener("click", () => {
       const direction = vnode.key === "prev" ? -1 : 1;
-      console.log("clicked navigate:", direction);
-      socket.emit("quiz-action", {
-        type: "NAVIGATE",
+      socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
+        type: QUIZ_ACTION_TYPES.NAVIGATE,
         payload: { direction },
       });
     });
@@ -91,7 +98,7 @@ const ServerDiffReconciliator = () => {
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    socket.on("initial-vdom", (vdom: VNode) => {
+    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
       console.log("initial vdom received:", vdom);
       const newRoot = createElement(vdom);
       if (newRoot instanceof HTMLElement) {
@@ -99,10 +106,9 @@ const ServerDiffReconciliator = () => {
       }
     });
 
-    socket.on("vdom-update", (changes: VNode[]) => {
+    socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
       console.log("changes received:", changes);
       changes.forEach((newNode) => {
-        console.log("newNode", newNode);
         if (typeof newNode.key !== "undefined") {
           // If this is an option update
           if ((newNode.key as string).startsWith("option-")) {
@@ -131,8 +137,8 @@ const ServerDiffReconciliator = () => {
     });
 
     return () => {
-      socket.off("initial-vdom");
-      socket.off("vdom-update");
+      socket.off(SOCKET_EVENT_NAMES.INITIAL_VDOM);
+      socket.off(SOCKET_EVENT_NAMES.VDOM_UPDATE);
     };
   }, []);
 

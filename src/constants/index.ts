@@ -11,3 +11,10 @@ export const QUIZ_ACTION_TYPES = {
   NAVIGATE: "NAVIGATE",
   ANSWER_SELECTED: "ANSWER_SELECTED",
 };
+
+export const CLASSNAMES = {
+  CORRECT: "correct",
+  INCORRECT: "incorrect",
+  DISABLED: "disabled",
+  SELECTED: "selected",
+};
