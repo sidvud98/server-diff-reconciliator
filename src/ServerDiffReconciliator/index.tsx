@@ -78,6 +78,68 @@ function createElement(vnode: VNode): HTMLElement | Text {
   return element;
 }
 
+function updateElement(existing: HTMLElement | Text, vnode: VNode): void {
+  if (vnode.type === "text") {
+    if (
+      existing instanceof Text &&
+      existing.textContent !== vnode.props.content
+    ) {
+      existing.textContent = vnode.props.content || "";
+    }
+    return;
+  }
+
+  if (!(existing instanceof HTMLElement)) return;
+
+  // Update properties
+  Object.entries(vnode.props).forEach(([key, value]) => {
+    if (key === "className" && typeof value === "string") {
+      if (existing.className !== value) {
+        existing.className = value;
+      }
+    } else if (key === "selected") {
+      const hasSelected = existing.classList.contains("selected");
+      if (value && !hasSelected) {
+        existing.classList.add("selected");
+      } else if (!value && hasSelected) {
+        existing.classList.remove("selected");
+      }
+    } else if (key === "correct" && value !== null) {
+      const wasCorrect = existing.classList.contains("correct");
+      const wasIncorrect = existing.classList.contains("incorrect");
+
+      if (value === true && !wasCorrect) {
+        if (wasIncorrect) existing.classList.remove("incorrect");
+        existing.classList.add("correct");
+      } else if (value === false && !wasIncorrect) {
+        if (wasCorrect) existing.classList.remove("correct");
+        existing.classList.add("incorrect");
+      }
+    } else if (key === "disabled" && existing instanceof HTMLButtonElement) {
+      if (existing.disabled !== Boolean(value)) {
+        existing.disabled = Boolean(value);
+      }
+    } else if (key !== "content" && typeof value === "string") {
+      const currentValue = existing.getAttribute(key);
+      if (currentValue !== value) {
+        existing.setAttribute(key, value);
+      }
+    }
+  });
+
+  // Update children if they exist
+  if (vnode.children && existing instanceof HTMLElement) {
+    // Only update children for non-text nodes
+    const existingChildren = Array.from(existing.childNodes);
+    vnode.children.forEach((childVNode, i) => {
+      const childElement = existingChildren[i];
+      if (childElement instanceof HTMLElement || childElement instanceof Text) {
+        updateElement(childElement, childVNode);
+      }
+    });
+  }
+}
+
 const ServerDiffReconciliator = () => {
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
@@ -97,11 +159,8 @@ const ServerDiffReconciliator = () => {
             `[data-key="${newNode.key}"]`
           );
           if (existing instanceof HTMLElement) {
-            const parent = existing.parentElement;
-            const newElement = createElement(newNode);
-            if (newElement instanceof HTMLElement && parent) {
-              parent.replaceChild(newElement, existing);
-            }
+            // Update the existing element instead of replacing it
+            updateElement(existing, newNode);
           }
         }
       });
