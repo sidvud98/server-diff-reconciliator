@@ -144,9 +144,18 @@ export const diffVDOM = (oldVDOM: VNode, newVDOM: VNode): VNode[] => {
 
   // Helper function to traverse and compare VDOMs
   const traverse = (oldNode: VNode, newNode: VNode, path: string[] = []) => {
-    // For options, always send the full container to ensure correct rendering
-    if (newNode.key === "options") {
-      changes.push(newNode);
+    // For options container, traverse into it to find specific changed options
+    if (newNode.key === "options" && oldNode.children && newNode.children) {
+      // Find which specific options changed
+      const changedOptions = newNode.children.filter((newChild, index) => {
+        const oldChild = oldNode.children![index];
+        return hasNodeChanged(oldChild, newChild);
+      });
+
+      // If any options changed, only send those specific options
+      changedOptions.forEach((option) => {
+        changes.push(option);
+      });
       return;
     }
 

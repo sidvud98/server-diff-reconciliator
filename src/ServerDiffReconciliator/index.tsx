@@ -93,14 +93,34 @@ const ServerDiffReconciliator = () => {
       console.log("changes received:", changes);
       changes.forEach((newNode) => {
         if (typeof newNode.key !== "undefined") {
-          const existing = document.querySelector(
-            `[data-key="${newNode.key}"]`
-          );
-          if (existing instanceof HTMLElement) {
-            const parent = existing.parentElement;
-            const newElement = createElement(newNode);
-            if (newElement instanceof HTMLElement && parent) {
-              parent.replaceChild(newElement, existing);
+          // If this is an option update, find it directly under the options container
+          if (
+            typeof newNode.key === "string" &&
+            newNode.key.startsWith("option-")
+          ) {
+            const optionElement = document.querySelector(
+              `.options [data-key="${newNode.key}"]`
+            );
+            if (optionElement instanceof HTMLElement) {
+              const newOptionElement = createElement(newNode);
+              if (newOptionElement instanceof HTMLElement) {
+                optionElement.parentElement?.replaceChild(
+                  newOptionElement,
+                  optionElement
+                );
+              }
+            }
+          } else {
+            // For other nodes (like score), handle normally
+            const existing = document.querySelector(
+              `[data-key="${newNode.key}"]`
+            );
+            if (existing instanceof HTMLElement) {
+              const parent = existing.parentElement;
+              const newElement = createElement(newNode);
+              if (newElement instanceof HTMLElement && parent) {
+                parent.replaceChild(newElement, existing);
+              }
             }
           }
         }
