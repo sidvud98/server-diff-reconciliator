@@ -12,23 +12,28 @@ export const RootContainer = styled.div<{ theme: Theme }>`
   gap: ${({ theme }) => theme.spacing.md};
   box-shadow: ${({ theme }) => theme.shadows.default};
   color: ${({ theme }) => theme.colors.text.primary};
-  width: 64rem;
+  width: 36rem;
 
   .quiz-container {
     display: flex;
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing.lg};
+
+    h2 {
+      margin: 0;
+    }
   }
 
   .score {
-    font-size: ${({ theme }) => theme.fontSize.medium};
+    font-size: ${({ theme }) => theme.fontSize.large};
+    font-weight: ${({ theme }) => theme.fontWeight.normal};
     text-align: center;
   }
 
   .question-container {
     display: flex;
     flex-direction: column;
-    gap: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.md};
   }
 
   .options {
@@ -38,23 +43,27 @@ export const RootContainer = styled.div<{ theme: Theme }>`
   }
 
   .option {
-    padding: ${({ theme }) => theme.spacing.sm};
-    border: 4px solid ${({ theme }) => theme.colors.border.default};
+    padding: ${({ theme }) => theme.spacing.xs};
+    border: 1px solid ${({ theme }) => theme.colors.border.default};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     cursor: pointer;
+    font-weight: ${({ theme }) => theme.fontWeight.semiBold};
 
     &.selected {
       border-color: ${({ theme }) => theme.colors.primary};
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
     &.correct {
       border-color: ${({ theme }) => theme.colors.status.correct};
-      color: ${({ theme }) => theme.colors.status.correct};
+      color: ${({ theme }) => theme.colors.backgroundLight};
+      background-color: ${({ theme }) => theme.colors.status.correct};
     }
 
     &.incorrect {
       border-color: ${({ theme }) => theme.colors.status.incorrect};
-      color: ${({ theme }) => theme.colors.status.incorrect};
+      color: ${({ theme }) => theme.colors.backgroundLight};
+      background-color: ${({ theme }) => theme.colors.status.incorrect};
     }
   }
 

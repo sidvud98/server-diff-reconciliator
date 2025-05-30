@@ -1,6 +1,6 @@
 export const theme = {
   colors: {
-    primary: "#646cff",
+    primary: "#1b69de",
     background: "#242424",
     backgroundLight: "#ffffff",
     text: {
@@ -39,6 +39,12 @@ export const theme = {
     medium: "1.5rem",
     large: "2rem",
     xlarge: "3.2rem",
+  },
+  fontWeight: {
+    normal: 400,
+    medium: 500,
+    semiBold: 600,
+    bold: 700,
   },
 } as const;
 
