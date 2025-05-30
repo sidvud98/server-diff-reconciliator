@@ -39,13 +39,12 @@ export const RootContainer = styled.div<{ theme: Theme }>`
 
   .option {
     padding: ${({ theme }) => theme.spacing.sm};
-    border: 2px solid ${({ theme }) => theme.colors.border.default};
+    border: 4px solid ${({ theme }) => theme.colors.border.default};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     cursor: pointer;
 
     &.selected {
       border-color: ${({ theme }) => theme.colors.primary};
-      background-color: #f0f0ff;
     }
 
     &.correct {

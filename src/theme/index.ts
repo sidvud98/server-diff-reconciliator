@@ -12,7 +12,7 @@ export const theme = {
       backgroundLight: "#f9f9f9",
     },
     status: {
-      correct: "#4caf50",
+      correct: "#6cdb6c",
       incorrect: "#f44336",
     },
     border: {
