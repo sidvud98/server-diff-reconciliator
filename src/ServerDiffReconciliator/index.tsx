@@ -6,7 +6,7 @@ import { CLASSNAMES, QUIZ_ACTION_TYPES, SOCKET_EVENT_NAMES } from "@constants";
 
 const socket: Socket = io("http://localhost:3001");
 
-const createElement = (vnode: VNode): HTMLElement | Text => {
+const createCustomElement = (vnode: VNode): HTMLElement | Text => {
   // Handle text nodes (leaf nodes in our virtual DOM)
   if (vnode.type === "text") {
     return document.createTextNode(vnode.props.content || "");
@@ -87,7 +87,7 @@ const createElement = (vnode: VNode): HTMLElement | Text => {
   // Create and append children
   if (vnode.children) {
     vnode.children.forEach((child) => {
-      element.appendChild(createElement(child));
+      element.appendChild(createCustomElement(child));
     });
   }
 
@@ -98,7 +98,7 @@ const ServerDiffReconciliator = () => {
   useEffect(() => {
     socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
       console.log("Initial VDOM received:", vdom);
-      const newRoot = createElement(vdom);
+      const newRoot = createCustomElement(vdom);
       document
         .getElementById("root-server-diff-reconciliator")
         ?.appendChild(newRoot);
@@ -113,7 +113,7 @@ const ServerDiffReconciliator = () => {
             const optionElement = document.querySelector(
               `.option[data-key="${newNode.key}"]`
             );
-            const newOptionElement = createElement(newNode);
+            const newOptionElement = createCustomElement(newNode);
             (optionElement as HTMLElement).parentElement?.replaceChild(
               newOptionElement,
               optionElement as HTMLElement
@@ -124,7 +124,7 @@ const ServerDiffReconciliator = () => {
               `[data-key="${newNode.key}"]`
             );
             const parent = (existing as HTMLElement).parentElement;
-            const newElement = createElement(newNode);
+            const newElement = createCustomElement(newNode);
             parent?.replaceChild(
               newElement as HTMLElement,
               existing as HTMLElement
