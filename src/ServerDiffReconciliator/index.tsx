@@ -6,7 +6,7 @@ import type { VNode } from "./ServerDiffReconciliator.interface";
 // Initialize socket outside of component to prevent re-initialization
 const socket: Socket = io("http://localhost:3001");
 
-function createElement(vnode: VNode): HTMLElement | Text {
+const createElement = (vnode: VNode): HTMLElement | Text => {
   if (vnode.type === "text") {
     return document.createTextNode(vnode.props.content || "");
   }
@@ -44,7 +44,6 @@ function createElement(vnode: VNode): HTMLElement | Text {
       const optionIndex = Array.from(
         element.parentElement?.children || []
       ).indexOf(element);
-      console.log("clicked option:", questionIndex, optionIndex);
       socket.emit("quiz-action", {
         type: "ANSWER_SELECTED",
         payload: { questionIndex, optionIndex },
@@ -76,15 +75,15 @@ function createElement(vnode: VNode): HTMLElement | Text {
   }
 
   return element;
-}
+};
 
 const ServerDiffReconciliator = () => {
   const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     socket.on("initial-vdom", (vdom: VNode) => {
+      console.log("initial vdom received:", vdom);
       const newRoot = createElement(vdom);
-      console.log("newRoot", newRoot);
       if (newRoot instanceof HTMLElement) {
         setRootElement(newRoot);
       }
@@ -93,36 +92,29 @@ const ServerDiffReconciliator = () => {
     socket.on("vdom-update", (changes: VNode[]) => {
       console.log("changes received:", changes);
       changes.forEach((newNode) => {
+        console.log("newNode", newNode);
         if (typeof newNode.key !== "undefined") {
-          // If this is an option update, find it directly under the options container
-          if (
-            typeof newNode.key === "string" &&
-            newNode.key.startsWith("option-")
-          ) {
+          // If this is an option update
+          if ((newNode.key as string).startsWith("option-")) {
             const optionElement = document.querySelector(
-              `.options [data-key="${newNode.key}"]`
+              `.option[data-key="${newNode.key}"]`
             );
-            if (optionElement instanceof HTMLElement) {
-              const newOptionElement = createElement(newNode);
-              if (newOptionElement instanceof HTMLElement) {
-                optionElement.parentElement?.replaceChild(
-                  newOptionElement,
-                  optionElement
-                );
-              }
-            }
+            const newOptionElement = createElement(newNode);
+            (optionElement as HTMLElement).parentElement?.replaceChild(
+              newOptionElement,
+              optionElement as HTMLElement
+            );
           } else {
             // For other nodes (like score), handle normally
             const existing = document.querySelector(
               `[data-key="${newNode.key}"]`
             );
-            if (existing instanceof HTMLElement) {
-              const parent = existing.parentElement;
-              const newElement = createElement(newNode);
-              if (newElement instanceof HTMLElement && parent) {
-                parent.replaceChild(newElement, existing);
-              }
-            }
+            const parent = (existing as HTMLElement).parentElement;
+            const newElement = createElement(newNode);
+            parent?.replaceChild(
+              newElement as HTMLElement,
+              existing as HTMLElement
+            );
           }
         }
       });
@@ -136,9 +128,9 @@ const ServerDiffReconciliator = () => {
 
   return (
     <RootContainer
-      ref={(el) => {
-        if (el && rootElement && !el.hasChildNodes()) {
-          el.appendChild(rootElement);
+      ref={(elem) => {
+        if (elem && rootElement && !elem.hasChildNodes()) {
+          elem.appendChild(rootElement);
         }
       }}
     />
