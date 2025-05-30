@@ -99,8 +99,8 @@ const ServerDiffReconciliator = () => {
     });
 
     socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
-      console.log("changes received:", changes);
       setVdom((prev) => {
+        console.log("changes received:", changes, prev);
         if (!prev) return prev;
         const updated = JSON.parse(JSON.stringify(prev)); // Deep clone to avoid mutation
 
@@ -108,14 +108,9 @@ const ServerDiffReconciliator = () => {
           const updateNode = (node: VNode) => {
             if (node.key === change.key) {
               Object.assign(node, change);
-              return true;
+              return;
             }
-            if (node.children) {
-              for (const child of node.children) {
-                if (updateNode(child)) return true;
-              }
-            }
-            return false;
+            node.children?.forEach(updateNode);
           };
           updateNode(updated);
         });
