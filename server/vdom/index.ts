@@ -19,6 +19,9 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       const correct =
         optionIndex === quizData.questions[questionIndex].correctAnswer;
 
+      // Track old score before any updates
+      const oldScore = currentState.score;
+
       // Update score if this is a new answer or changing an answer
       if (currentState.answers[questionIndex] !== optionIndex) {
         if (currentState.answers[questionIndex] === null) {
@@ -38,16 +41,10 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
         }
       }
 
-      const scoreChanged =
-        currentState.answers[questionIndex] === null ||
-        currentState.answers[questionIndex] ===
-          quizData.questions[questionIndex].correctAnswer ||
-        optionIndex === quizData.questions[questionIndex].correctAnswer;
-
       currentState.answers[questionIndex] = optionIndex;
 
       // Only update score display if score actually changed
-      if (scoreChanged) {
+      if (currentState.score !== oldScore) {
         const scoreNode = newVDOM.children![0];
         scoreNode.key = "score";
         scoreNode.children![0].props.content = `Score: ${currentState.score}/3`;
@@ -144,6 +141,22 @@ export const diffVDOM = (oldVDOM: VNode, newVDOM: VNode): VNode[] => {
 
   // Helper function to traverse and compare VDOMs
   const traverse = (oldNode: VNode, newNode: VNode, path: string[] = []) => {
+    // Special handling for the root level where score container is
+    if (path.length === 0) {
+      const oldScoreContainer = oldNode.children?.[0];
+      const newScoreContainer = newNode.children?.[0];
+
+      if (
+        oldScoreContainer?.key === "score" &&
+        newScoreContainer?.key === "score" &&
+        oldScoreContainer.children?.[0]?.props.content !==
+          newScoreContainer.children?.[0]?.props.content
+      ) {
+        changes.push(newScoreContainer);
+        // Don't return, continue checking other changes
+      }
+    }
+
     // For options container, traverse into it to find specific changed options
     if (newNode.key === "options" && oldNode.children && newNode.children) {
       // Find which specific options changed
@@ -159,8 +172,8 @@ export const diffVDOM = (oldVDOM: VNode, newVDOM: VNode): VNode[] => {
       return;
     }
 
-    // For other nodes (including score), only send if they actually changed
-    if (hasNodeChanged(oldNode, newNode)) {
+    // For non-root nodes that have changed
+    if (path.length > 0 && hasNodeChanged(oldNode, newNode)) {
       changes.push(newNode);
       return;
     }

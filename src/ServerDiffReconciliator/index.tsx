@@ -84,6 +84,7 @@ const ServerDiffReconciliator = () => {
   useEffect(() => {
     socket.on("initial-vdom", (vdom: VNode) => {
       const newRoot = createElement(vdom);
+      console.log("newRoot", newRoot);
       if (newRoot instanceof HTMLElement) {
         setRootElement(newRoot);
       }
