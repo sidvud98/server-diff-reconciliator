@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
@@ -95,15 +95,13 @@ const createElement = (vnode: VNode): HTMLElement | Text => {
 };
 
 const ServerDiffReconciliator = () => {
-  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
-
   useEffect(() => {
     socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
-      console.log("initial vdom received:", vdom);
+      console.log("Initial VDOM received:", vdom);
       const newRoot = createElement(vdom);
-      if (newRoot instanceof HTMLElement) {
-        setRootElement(newRoot);
-      }
+      document
+        .getElementById("root-server-diff-reconciliator")
+        ?.appendChild(newRoot);
     });
 
     socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
@@ -142,15 +140,7 @@ const ServerDiffReconciliator = () => {
     };
   }, []);
 
-  return (
-    <RootContainer
-      ref={(elem) => {
-        if (elem && rootElement && !elem.hasChildNodes()) {
-          elem.appendChild(rootElement);
-        }
-      }}
-    />
-  );
+  return <RootContainer id="root-server-diff-reconciliator" />;
 };
 
 export default ServerDiffReconciliator;
