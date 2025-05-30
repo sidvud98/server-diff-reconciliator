@@ -6,7 +6,7 @@ export const QUIZ_DATA = {
       id: 1,
       text: "Which country recently overtook Japan to become the world's 4th largest economy?",
       options: [
-        "The United Kingdom overtook Japan to become the 4th largest economy.",
+        "The UK overtook Japan to become the 4th largest economy.",
         "India overtook Japan to become the 4th largest economy.",
         "Germany overtook Japan to become the 4th largest economy.",
         "Brazil overtook Japan to become the 4th largest economy.",

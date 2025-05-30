@@ -43,11 +43,14 @@ export const RootContainer = styled.div<{ theme: Theme }>`
   }
 
   .option {
-    padding: ${({ theme }) => theme.spacing.xs};
+    padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
     border: 1px solid ${({ theme }) => theme.colors.border.default};
     border-radius: ${({ theme }) => theme.borderRadius.md};
     cursor: pointer;
     font-weight: ${({ theme }) => theme.fontWeight.semiBold};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &.selected {
       border-color: ${({ theme }) => theme.colors.primary};
