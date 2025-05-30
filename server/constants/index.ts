@@ -1,6 +1,6 @@
 import type { QuizState, VNode } from "server/vdom/vdom.interface";
 
-export const quizData = {
+export const QUIZ_DATA = {
   questions: [
     {
       id: 1,
@@ -37,6 +37,8 @@ export const quizData = {
     },
   ],
 };
+
+export const QUIZ_LENGTH = QUIZ_DATA.questions.length;
 
 export const CLASSNAMES = {
   CORRECT: "correct",
@@ -103,7 +105,9 @@ export const initialVDOM: VNode = {
       children: [
         {
           type: NODE_TYPES.TEXT,
-          props: { content: `Score: ${initialState.score}/3` },
+          props: {
+            content: `Score: ${initialState.score}/${QUIZ_LENGTH}`,
+          },
         },
       ],
     },
@@ -121,7 +125,7 @@ export const initialVDOM: VNode = {
           children: [
             {
               type: NODE_TYPES.TEXT,
-              props: { content: quizData.questions[0].text },
+              props: { content: QUIZ_DATA.questions[0].text },
             },
           ],
         },
@@ -129,7 +133,7 @@ export const initialVDOM: VNode = {
           type: NODE_TYPES.DIV,
           props: { className: CLASSNAMES.OPTIONS },
           key: KEY_CODES.OPTIONS,
-          children: quizData.questions[0].options.map((option, idx) => ({
+          children: QUIZ_DATA.questions[0].options.map((option, idx) => ({
             type: NODE_TYPES.DIV,
             key: `${KEY_CODES.OPTION}-${idx}`,
             props: {

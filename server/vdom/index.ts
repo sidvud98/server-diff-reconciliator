@@ -1,5 +1,5 @@
 import type { QuizAction, VNode } from "./vdom.interface";
-import { initialState, QUIZ_ACTION_TYPES, quizData } from "../constants";
+import { initialState, QUIZ_ACTION_TYPES, QUIZ_DATA } from "../constants";
 
 let currentState = { ...initialState };
 
@@ -17,7 +17,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
     case QUIZ_ACTION_TYPES.ANSWER_SELECTED: {
       const { questionIndex, optionIndex } = action.payload;
       const correct =
-        optionIndex === quizData.questions[questionIndex].correctAnswer;
+        optionIndex === QUIZ_DATA.questions[questionIndex].correctAnswer;
 
       // Track old score before any updates
       const oldScore = currentState.score;
@@ -31,7 +31,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
           // Changing an existing answer
           const wasCorrect =
             currentState.answers[questionIndex] ===
-            quizData.questions[questionIndex].correctAnswer;
+            QUIZ_DATA.questions[questionIndex].correctAnswer;
           if (wasCorrect && !correct) {
             currentState.score = Math.max(0, currentState.score - 1);
           }
@@ -55,18 +55,18 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       optionsContainer.key = "options";
 
       // Update individual options
-      optionsContainer.children = quizData.questions[questionIndex].options.map(
-        (option, idx) => ({
-          type: "div",
-          key: `option-${idx}`,
-          props: {
-            className: "option",
-            selected: idx === optionIndex,
-            correct: idx === optionIndex ? correct : null,
-          },
-          children: [{ type: "text", props: { content: option } }],
-        })
-      );
+      optionsContainer.children = QUIZ_DATA.questions[
+        questionIndex
+      ].options.map((option, idx) => ({
+        type: "div",
+        key: `option-${idx}`,
+        props: {
+          className: "option",
+          selected: idx === optionIndex,
+          correct: idx === optionIndex ? correct : null,
+        },
+        children: [{ type: "text", props: { content: option } }],
+      }));
       return newVDOM;
     }
 
@@ -77,7 +77,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       // Validate navigation bounds
       if (
         newQuestionIndex < 0 ||
-        newQuestionIndex >= quizData.questions.length
+        newQuestionIndex >= QUIZ_DATA.questions.length
       ) {
         return oldVDOM; // Return original VDOM if navigation is out of bounds
       }
@@ -85,7 +85,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       currentState.currentQuestion = newQuestionIndex;
 
       // Update question
-      const question = quizData.questions[currentState.currentQuestion];
+      const question = QUIZ_DATA.questions[currentState.currentQuestion];
       // Update question container's data attribute
       newVDOM.children![1].props["data-question-index"] =
         currentState.currentQuestion.toString();
@@ -99,7 +99,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
 
       // Update options with the current question's options and preserve selection state
       const selectedAnswer = currentState.answers[currentState.currentQuestion];
-      optionsContainer.children = quizData.questions[
+      optionsContainer.children = QUIZ_DATA.questions[
         currentState.currentQuestion
       ].options.map((option, idx) => ({
         type: "div",
