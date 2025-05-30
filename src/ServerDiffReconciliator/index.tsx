@@ -3,33 +3,43 @@ import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
 import type { VNode } from "./ServerDiffReconciliator.interface";
 
-// Initialize socket outside of component to prevent re-initialization
 const socket: Socket = io("http://localhost:3001");
 
 const createElement = (vnode: VNode): HTMLElement | Text => {
+  // Handle text nodes (leaf nodes in our virtual DOM)
   if (vnode.type === "text") {
     return document.createTextNode(vnode.props.content || "");
   }
 
+  // Create the base DOM element
   const element = document.createElement(vnode.type) as HTMLElement;
 
-  // Set properties
+  // Process all properties from the virtual node
   Object.entries(vnode.props).forEach(([key, value]) => {
     if (key === "className" && typeof value === "string") {
       element.className = value;
-    } else if (key === "selected") {
+    }
+    // Handle selection state for quiz options
+    else if (key === "selected") {
       if (value) {
         element.classList.add("selected");
       } else {
         element.classList.remove("selected");
       }
-    } else if (key === "correct" && value !== null) {
+    }
+    // Handle correct/incorrect states for quiz answers
+    else if (key === "correct" && value !== null) {
+      // Clear both states first to ensure clean state
       element.classList.remove("correct", "incorrect");
       if (value === true) element.classList.add("correct");
       if (value === false) element.classList.add("incorrect");
-    } else if (key === "disabled" && vnode.type === "button") {
+    }
+    // Handle disabled state for navigation buttons
+    else if (key === "disabled" && vnode.type === "button") {
       (element as HTMLButtonElement).disabled = Boolean(value);
-    } else if (key !== "content" && typeof value === "string") {
+    }
+    // Handle all other string attributes (except content which is handled separately)
+    else if (key !== "content" && typeof value === "string") {
       element.setAttribute(key, value);
     }
   });
