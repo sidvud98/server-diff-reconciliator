@@ -38,12 +38,20 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
         }
       }
 
+      const scoreChanged =
+        currentState.answers[questionIndex] === null ||
+        currentState.answers[questionIndex] ===
+          quizData.questions[questionIndex].correctAnswer ||
+        optionIndex === quizData.questions[questionIndex].correctAnswer;
+
       currentState.answers[questionIndex] = optionIndex;
 
-      // Update score display
-      const scoreNode = newVDOM.children![0];
-      scoreNode.key = "score";
-      scoreNode.children![0].props.content = `Score: ${currentState.score}/3`;
+      // Only update score display if score actually changed
+      if (scoreChanged) {
+        const scoreNode = newVDOM.children![0];
+        scoreNode.key = "score";
+        scoreNode.children![0].props.content = `Score: ${currentState.score}/3`;
+      }
 
       // Update options container
       const optionsContainer = newVDOM.children![1].children![1];
@@ -136,12 +144,13 @@ export const diffVDOM = (oldVDOM: VNode, newVDOM: VNode): VNode[] => {
 
   // Helper function to traverse and compare VDOMs
   const traverse = (oldNode: VNode, newNode: VNode, path: string[] = []) => {
-    // Always include nodes with key "score" or "options" in changes
-    if (newNode.key === "score" || newNode.key === "options") {
+    // For options, always send the full container to ensure correct rendering
+    if (newNode.key === "options") {
       changes.push(newNode);
       return;
     }
 
+    // For other nodes (including score), only send if they actually changed
     if (hasNodeChanged(oldNode, newNode)) {
       changes.push(newNode);
       return;
