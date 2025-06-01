@@ -22,12 +22,12 @@ const hasNodeChanged = (oldNode: VNode, newNode: VNode): boolean => {
 export const diffVDOM = (
   oldNode: VNode,
   newNode: VNode,
-  path: string[] = []
+  isRoot: boolean = true
 ): VNode[] => {
   const changes: VNode[] = [];
 
   // Special handling for the root level where score container is
-  if (path.length === 0) {
+  if (isRoot) {
     const oldScoreContainer = oldNode.children?.[0];
     const newScoreContainer = newNode.children?.[0];
 
@@ -52,7 +52,7 @@ export const diffVDOM = (
   }
 
   // For non-root nodes that have changed
-  if (path.length > 0 && hasNodeChanged(oldNode, newNode)) {
+  if (!isRoot && hasNodeChanged(oldNode, newNode)) {
     changes.push(newNode);
     return changes;
   }
@@ -60,10 +60,11 @@ export const diffVDOM = (
   // Recursively check children
   if (oldNode.children && newNode.children) {
     for (let i = 0; i < oldNode.children.length; i++) {
-      const childChanges = diffVDOM(oldNode.children[i], newNode.children[i], [
-        ...path,
-        i.toString(),
-      ]);
+      const childChanges = diffVDOM(
+        oldNode.children[i],
+        newNode.children[i],
+        false
+      );
       changes.push(...childChanges);
     }
   }
