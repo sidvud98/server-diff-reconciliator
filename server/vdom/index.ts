@@ -26,18 +26,33 @@ export const diffVDOM = (
 ): VNode[] => {
   const changes: VNode[] = [];
 
-  // Special handling for the root level where score container is
-  if (isRoot) {
-    const oldScoreContainer = oldNode.children?.[0];
-    const newScoreContainer = newNode.children?.[0];
+  // Handle score changes at root level and skip its children traversal
+  if (
+    isRoot &&
+    oldNode.children?.[0]?.key === "score" &&
+    newNode.children?.[0]?.key === "score"
+  ) {
+    const oldScoreContainer = oldNode.children[0];
+    const newScoreContainer = newNode.children[0];
 
     if (
-      oldScoreContainer?.key === "score" &&
-      newScoreContainer?.key === "score" &&
       oldScoreContainer.children?.[0]?.props.content !==
-        newScoreContainer.children?.[0]?.props.content
+      newScoreContainer.children?.[0]?.props.content
     ) {
       changes.push(newScoreContainer);
+    }
+
+    // Skip index 0 (score container) in root level traversal
+    if (oldNode.children && newNode.children) {
+      for (let i = 1; i < oldNode.children.length; i++) {
+        const childChanges = diffVDOM(
+          oldNode.children[i],
+          newNode.children[i],
+          false
+        );
+        changes.push(...childChanges);
+      }
+      return changes;
     }
   }
 
@@ -47,8 +62,10 @@ export const diffVDOM = (
       const oldChild = oldNode.children![index];
       return hasNodeChanged(oldChild, newChild);
     });
-    changes.push(...changedOptions);
-    return changes;
+    if (changedOptions.length > 0) {
+      changes.push(...changedOptions);
+      return changes;
+    }
   }
 
   // For non-root nodes that have changed
@@ -57,8 +74,8 @@ export const diffVDOM = (
     return changes;
   }
 
-  // Recursively check children
-  if (oldNode.children && newNode.children) {
+  // For non-root nodes, recursively check children
+  if (!isRoot && oldNode.children && newNode.children) {
     for (let i = 0; i < oldNode.children.length; i++) {
       const childChanges = diffVDOM(
         oldNode.children[i],
