@@ -90,6 +90,7 @@ export const RootContainer = styled.div<{ theme: Theme }>`
       &:disabled {
         background-color: ${({ theme }) => theme.colors.border.default};
         cursor: not-allowed;
+        box-shadow: none;
       }
     }
   }
