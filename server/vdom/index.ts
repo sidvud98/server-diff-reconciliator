@@ -10,17 +10,17 @@ import {
 
 let currentState = { ...initialState };
 
+// Helper function to check if node has changed
+const hasNodeChanged = (oldNode: VNode, newNode: VNode): boolean => {
+  if (oldNode.type !== newNode.type) return true;
+  if (JSON.stringify(oldNode.props) !== JSON.stringify(newNode.props))
+    return true;
+  if (oldNode.key !== newNode.key) return true;
+  return false;
+};
+
 export const diffVDOM = (oldVDOM: VNode, newVDOM: VNode): VNode[] => {
   const changes: VNode[] = [];
-
-  // Helper function to check if node has changed
-  const hasNodeChanged = (oldNode: VNode, newNode: VNode): boolean => {
-    if (oldNode.type !== newNode.type) return true;
-    if (JSON.stringify(oldNode.props) !== JSON.stringify(newNode.props))
-      return true;
-    if (oldNode.key !== newNode.key) return true;
-    return false;
-  };
 
   // Helper function to traverse and compare VDOMs
   const traverse = (oldNode: VNode, newNode: VNode, path: string[] = []) => {
