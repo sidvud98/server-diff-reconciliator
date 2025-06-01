@@ -43,18 +43,6 @@ export const diffVDOM = (
     }
   }
 
-  // For options container, find specific changed options
-  if (newNode.key === "options" && oldNode.children && newNode.children) {
-    const changedOptions = newNode.children.filter((newChild, index) => {
-      const oldChild = oldNode.children![index];
-      return hasNodeChanged(oldChild, newChild);
-    });
-    if (changedOptions.length > 0) {
-      changes.push(...changedOptions);
-      return changes;
-    }
-  }
-
   // For non-root nodes that have changed
   if (!isRoot && hasNodeChanged(oldNode, newNode)) {
     changes.push(newNode);
