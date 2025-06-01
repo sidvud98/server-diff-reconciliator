@@ -1,5 +1,12 @@
 import type { QuizAction, VNode } from "./vdom.interface";
-import { initialState, QUIZ_ACTION_TYPES, QUIZ_DATA } from "../constants";
+import {
+  initialState,
+  QUIZ_ACTION_TYPES,
+  QUIZ_DATA,
+  KEY_CODES,
+  CLASSNAMES,
+  QUIZ_LENGTH,
+} from "../constants";
 
 let currentState = { ...initialState };
 
@@ -46,22 +53,22 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
       // Only update score display if score actually changed
       if (currentState.score !== oldScore) {
         const scoreNode = newVDOM.children![0];
-        scoreNode.key = "score";
-        scoreNode.children![0].props.content = `Score: ${currentState.score}/3`;
+        scoreNode.key = KEY_CODES.SCORE;
+        scoreNode.children![0].props.content = `Score: ${currentState.score}/${QUIZ_LENGTH}`;
       }
 
       // Update options container
       const optionsContainer = newVDOM.children![1].children![1];
-      optionsContainer.key = "options";
+      optionsContainer.key = KEY_CODES.OPTIONS;
 
       // Update individual options
       optionsContainer.children = QUIZ_DATA.questions[
         questionIndex
       ].options.map((option, idx) => ({
         type: "div",
-        key: `option-${idx}`,
+        key: `${KEY_CODES.OPTION}-${idx}`,
         props: {
-          className: "option",
+          className: CLASSNAMES.OPTION,
           selected: idx === optionIndex,
           correct: idx === optionIndex ? correct : null,
         },
@@ -95,7 +102,7 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
 
       // Update options container
       const optionsContainer = newVDOM.children![1].children![1];
-      optionsContainer.key = "options";
+      optionsContainer.key = KEY_CODES.OPTIONS;
 
       // Update options with the current question's options and preserve selection state
       const selectedAnswer = currentState.answers[currentState.currentQuestion];
@@ -103,9 +110,9 @@ export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
         currentState.currentQuestion
       ].options.map((option, idx) => ({
         type: "div",
-        key: `option-${idx}`,
+        key: `${KEY_CODES.OPTION}-${idx}`,
         props: {
-          className: "option",
+          className: CLASSNAMES.OPTION,
           selected: idx === selectedAnswer,
           correct:
             idx === selectedAnswer ? idx === question.correctAnswer : null,

@@ -54,6 +54,11 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
   // Add click handler for quiz options (divs with class "option")
   if (vnode.type === "div" && vnode.props.className === CLASSNAMES.OPTION) {
     element.addEventListener("click", () => {
+      // If the option is already selected, do nothing
+      if (vnode.props.selected) {
+        return;
+      }
+
       // Find the parent question container by traversing up the DOM tree
       const questionContainer = element.closest(
         `.${CLASSNAMES.QUESTION_CONTAINER}`
@@ -82,6 +87,12 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
     vnode.props.className === CLASSNAMES.NAV_BUTTON
   ) {
     element.addEventListener("click", () => {
+      // Add an extra layer of safety redundancy despite button being disabled
+      // Do nothing if the button is disabled
+      if (vnode.props.disabled) {
+        return;
+      }
+
       const direction = vnode.key === VDOM_PROPS.PREVIOUS ? -1 : 1;
       socket.emit(SOCKET_EVENT_NAMES.QUIZ_ACTION, {
         type: QUIZ_ACTION_TYPES.NAVIGATE,

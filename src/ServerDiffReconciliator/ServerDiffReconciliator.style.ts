@@ -40,6 +40,7 @@ export const RootContainer = styled.div<{ theme: Theme }>`
     display: flex;
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing.sm};
+    user-select: none;
   }
 
   .option {
@@ -53,7 +54,6 @@ export const RootContainer = styled.div<{ theme: Theme }>`
     text-overflow: ellipsis;
 
     &.selected {
-      border-color: ${({ theme }) => theme.colors.primary};
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
@@ -84,6 +84,7 @@ export const RootContainer = styled.div<{ theme: Theme }>`
       border-radius: ${({ theme }) => theme.borderRadius.sm};
       cursor: pointer;
       width: 50%;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
       &:disabled {
         background-color: ${({ theme }) => theme.colors.border.default};
