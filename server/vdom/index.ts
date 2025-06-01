@@ -26,7 +26,7 @@ export const diffVDOM = (
 ): VNode[] => {
   const changes: VNode[] = [];
 
-  // Handle score changes at root level and skip its children traversal
+  // Handle score changes at root level
   if (
     isRoot &&
     oldNode.children?.[0]?.key === "score" &&
@@ -40,19 +40,6 @@ export const diffVDOM = (
       newScoreContainer.children?.[0]?.props.content
     ) {
       changes.push(newScoreContainer);
-    }
-
-    // Skip index 0 (score container) in root level traversal
-    if (oldNode.children && newNode.children) {
-      for (let i = 1; i < oldNode.children.length; i++) {
-        const childChanges = diffVDOM(
-          oldNode.children[i],
-          newNode.children[i],
-          false
-        );
-        changes.push(...childChanges);
-      }
-      return changes;
     }
   }
 
@@ -74,9 +61,11 @@ export const diffVDOM = (
     return changes;
   }
 
-  // For non-root nodes, recursively check children
-  if (!isRoot && oldNode.children && newNode.children) {
-    for (let i = 0; i < oldNode.children.length; i++) {
+  // Recursively check children
+  if (oldNode.children && newNode.children) {
+    // For root level, skip the score container
+    const startIndex = isRoot ? 1 : 0;
+    for (let i = startIndex; i < oldNode.children.length; i++) {
       const childChanges = diffVDOM(
         oldNode.children[i],
         newNode.children[i],
