@@ -19,6 +19,8 @@ const io = new Server(httpServer, {
   },
 });
 
+let currentVDOM = initialVDOM;
+
 // Create function to reset server state
 const resetServerState = () => {
   // Reset the VDOM to initial state
@@ -27,8 +29,6 @@ const resetServerState = () => {
   resetQuizState();
   console.log("Server state fully reset", { currentVDOM });
 };
-
-let currentVDOM = initialVDOM;
 
 io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
   console.log("Client connected");
