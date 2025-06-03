@@ -30,3 +30,6 @@ export const CLASSNAMES = {
   NAV_BUTTON: "nav-button",
   QUESTION_CONTAINER: "question-container",
 };
+
+export const ID_ROOT_SERVER_DIFF_RECONCILIATOR =
+  "root-server-diff-reconciliator";

@@ -5,7 +5,7 @@ import {
   QUIZ_ACTION_TYPES,
   SOCKET_EVENT_NAMES,
 } from "@constants";
-import type { IVNode } from "../ServerDiffReconciliator/ServerDiffReconciliator.interface";
+import type { IVNode } from "@src/ServerDiffReconciliator/ServerDiffReconciliator.interface";
 
 export const createCustomElement = (
   vnode: IVNode,

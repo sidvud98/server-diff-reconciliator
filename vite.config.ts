@@ -10,11 +10,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@components": path.resolve(__dirname, "./src/components"),
+      "@src": path.resolve(__dirname, "./src"),
       "@utils": path.resolve(__dirname, "./src/utils"),
+      "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@constants": path.resolve(__dirname, "./src/constants"),
       "@server": path.resolve(__dirname, "./server"),
+      "@serverconstants": path.resolve(__dirname, "./server/constants"),
     },
   },
 });

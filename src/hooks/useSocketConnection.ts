@@ -1,17 +1,15 @@
 import { SOCKET_EVENT_NAMES } from "@constants";
 import { useEffect } from "react";
 import { Socket } from "socket.io-client";
-import type { IVNode } from "../ServerDiffReconciliator/ServerDiffReconciliator.interface.ts";
-import { createCustomElement } from "../utils/helper";
+import type { IVNode } from "@src/ServerDiffReconciliator/ServerDiffReconciliator.interface.ts";
+import { createCustomElement } from "@utils/helper";
 
-export const useSocketConnection = (socket: Socket) => {
+export const useSocketConnection = (socket: Socket, id: string) => {
   useEffect(() => {
     socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: IVNode) => {
       console.log("Initial VDOM received:", vdom);
       const newRoot = createCustomElement(vdom, socket);
-      document
-        .getElementById("root-server-diff-reconciliator")
-        ?.appendChild(newRoot);
+      document.getElementById(id)?.appendChild(newRoot);
     });
 
     socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: IVNode[]) => {
@@ -48,5 +46,5 @@ export const useSocketConnection = (socket: Socket) => {
       socket.off(SOCKET_EVENT_NAMES.INITIAL_VDOM);
       socket.off(SOCKET_EVENT_NAMES.VDOM_UPDATE);
     };
-  }, [socket]);
+  }, [socket, id]);
 };
