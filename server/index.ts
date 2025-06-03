@@ -8,7 +8,7 @@ import {
   SERVER_PORT,
   SOCKET_EVENT_NAMES,
 } from "./constants";
-import type { QuizAction } from "./vdom/vdom.interface";
+import type { IQuizAction } from "./vdom/vdom.interface";
 
 const app = express();
 const httpServer = createServer(app);
@@ -44,7 +44,7 @@ io.on(SOCKET_EVENT_NAMES.CONNECTION, (socket) => {
   );
 
   // Handle quiz interactions
-  socket.on(SOCKET_EVENT_NAMES.QUIZ_ACTION, (action: QuizAction) => {
+  socket.on(SOCKET_EVENT_NAMES.QUIZ_ACTION, (action: IQuizAction) => {
     const newVDOM = updateVDOM(currentVDOM, action);
     const diff = diffVDOM(currentVDOM, newVDOM);
     currentVDOM = newVDOM;

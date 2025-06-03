@@ -1,4 +1,4 @@
-interface VNodeProps {
+interface IVNodeProps {
   className?: string;
   selected?: boolean;
   correct?: boolean | null;
@@ -7,9 +7,9 @@ interface VNodeProps {
   [key: string]: unknown;
 }
 
-export interface VNode {
+export interface IVNode {
   type: string;
-  props: VNodeProps;
+  props: IVNodeProps;
   key?: string | number;
-  children?: VNode[];
+  children?: IVNode[];
 }

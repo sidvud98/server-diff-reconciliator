@@ -1,4 +1,4 @@
-import type { QuizAction, VNode } from "./vdom.interface";
+import type { IQuizAction, IVNode } from "./vdom.interface";
 import {
   initialState,
   QUIZ_ACTION_TYPES,
@@ -11,7 +11,7 @@ import {
 let currentState = { ...initialState };
 
 // Helper function to check if node has changed
-const hasNodeChanged = (oldNode: VNode, newNode: VNode): boolean => {
+const hasNodeChanged = (oldNode: IVNode, newNode: IVNode): boolean => {
   if (oldNode.type !== newNode.type) return true;
   if (JSON.stringify(oldNode.props) !== JSON.stringify(newNode.props))
     return true;
@@ -20,11 +20,11 @@ const hasNodeChanged = (oldNode: VNode, newNode: VNode): boolean => {
 };
 
 export const diffVDOM = (
-  oldNode: VNode,
-  newNode: VNode,
+  oldNode: IVNode,
+  newNode: IVNode,
   isRoot: boolean = true
-): VNode[] => {
-  const changes: VNode[] = [];
+): IVNode[] => {
+  const changes: IVNode[] = [];
 
   // Handle score changes at root level
   if (
@@ -66,7 +66,7 @@ export const diffVDOM = (
   return changes;
 };
 
-export const updateVDOM = (oldVDOM: VNode, action: QuizAction): VNode => {
+export const updateVDOM = (oldVDOM: IVNode, action: IQuizAction): IVNode => {
   const newVDOM = JSON.parse(JSON.stringify(oldVDOM));
 
   switch (action.type) {

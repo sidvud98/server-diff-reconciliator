@@ -1,4 +1,4 @@
-interface VNodeProps {
+interface IVNodeProps {
   className?: string;
   selected?: boolean;
   correct?: boolean | null;
@@ -7,28 +7,28 @@ interface VNodeProps {
   [key: string]: unknown;
 }
 
-export interface VNode {
+export interface IVNode {
   type: string;
-  props: VNodeProps;
+  props: IVNodeProps;
   key?: string | number;
-  children?: VNode[];
+  children?: IVNode[];
 }
 
-export interface QuizState {
+export interface IQuizState {
   currentQuestion: number;
   score: number;
   answers: (number | null)[];
 }
 
-export interface AnswerSelectedPayload {
+export interface IAnswerSelectedPayload {
   questionIndex: number;
   optionIndex: number;
 }
 
-export interface NavigatePayload {
+export interface INavigatePayload {
   direction: number;
 }
 
-export type QuizAction =
-  | { type: "ANSWER_SELECTED"; payload: AnswerSelectedPayload }
-  | { type: "NAVIGATE"; payload: NavigatePayload };
+export type IQuizAction =
+  | { type: "ANSWER_SELECTED"; payload: IAnswerSelectedPayload }
+  | { type: "NAVIGATE"; payload: INavigatePayload };

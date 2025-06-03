@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { RootContainer } from "./ServerDiffReconciliator.style";
-import type { VNode } from "./ServerDiffReconciliator.interface";
+import type { IVNode } from "./ServerDiffReconciliator.interface";
 import {
   CLASSNAMES,
   VDOM_PROPS,
@@ -12,7 +12,7 @@ import {
 
 const socket: Socket = io(SERVER_URL);
 
-const createCustomElement = (vnode: VNode): HTMLElement | Text => {
+const createCustomElement = (vnode: IVNode): HTMLElement | Text => {
   // Handle text nodes (leaf nodes in our virtual DOM)
   if (vnode.type === "text") {
     return document.createTextNode(vnode.props.content || "");
@@ -118,7 +118,7 @@ const createCustomElement = (vnode: VNode): HTMLElement | Text => {
 
 const ServerDiffReconciliator = () => {
   useEffect(() => {
-    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: VNode) => {
+    socket.on(SOCKET_EVENT_NAMES.INITIAL_VDOM, (vdom: IVNode) => {
       console.log("Initial VDOM received:", vdom);
       const newRoot = createCustomElement(vdom);
       document
@@ -126,7 +126,7 @@ const ServerDiffReconciliator = () => {
         ?.appendChild(newRoot);
     });
 
-    socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: VNode[]) => {
+    socket.on(SOCKET_EVENT_NAMES.VDOM_UPDATE, (changes: IVNode[]) => {
       console.log("changes received:", changes);
       changes.forEach((newNode) => {
         if (typeof newNode.key !== "undefined") {

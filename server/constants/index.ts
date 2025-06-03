@@ -1,4 +1,4 @@
-import type { QuizState, VNode } from "server/vdom/vdom.interface";
+import type { IQuizState, IVNode } from "server/vdom/vdom.interface";
 
 export const QUIZ_DATA = {
   questions: [
@@ -87,14 +87,14 @@ export const QUIZ_ACTION_TYPES = {
 export type QuizActionType =
   (typeof QUIZ_ACTION_TYPES)[keyof typeof QUIZ_ACTION_TYPES];
 
-export const initialState: QuizState = {
+export const initialState: IQuizState = {
   currentQuestion: 0,
   score: 0,
   answers: [null, null, null],
 };
 
 // Create initial VDOM tree
-export const initialVDOM: VNode = {
+export const initialVDOM: IVNode = {
   type: NODE_TYPES.DIV,
   props: { className: CLASSNAMES.QUIZ_CONTAINER },
   children: [
